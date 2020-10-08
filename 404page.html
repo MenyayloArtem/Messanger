@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,16 +8,16 @@
 </head>
 <body>
     <div id="block">
-        <div id="Wrapper">
-            <div id="bigText">
+        <div id="content">
+            <span id="maint">
                 Что-то пошло не так...
-            </div>
-        </div>
-        <div id="antismileWrapper">
-            <div id="antismile">:(</div>
-        </div>
-        <div id="text">
-            По данному запросу ничего не найдено
+            </span>
+            <span id="mains">
+                :(
+            </span>
+            <span id="mainr">
+                По Вашему запросу ничего не найдено
+            </span>
         </div>
     </div>
 </body>
@@ -38,39 +39,30 @@
         width: 80vw;
         height: 90vh;
         border-radius: 5px;
+
+    }
+    #content {
+        display: flex;
+        align-self: center;
+        width: 70%;
+        height: 70%;
+        margin-top: 5%;
+        align-items: center;
+        flex-direction: column;
     }
 
-    #Wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        height: 20%;
+    #maint {
         font-size: 65px;
     }
 
-    #antismileWrapper {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        height: 10%;
-    }
+    #mains {
+         margin-top: 15%;
+         font-size: 100px;
+     }
 
-    #antismile {
-        font-size: 110px;
-        transform: rotate(90deg);
-    }
-
-    #text {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        height: 60%;
-        font-size: 28px;
-        font-weight: 600;
-        word-wrap: break-word;
+    #mainr {
+        margin-top: 15%;
+        font-size: 40px;
     }
 </style>
 </html>
