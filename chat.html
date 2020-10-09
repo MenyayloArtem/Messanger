@@ -37,7 +37,7 @@
         </div>
         <aside class="sideMenu" :class='{darkSide : blackTheme}'>
             <div class="content">
-                <div id="user">
+                <div id="user" v-if="user.auth">
                     <div id="user-avatar">
 <img :src="user.avatarUrl" id="avatar" width="50" height="50">
                     </div>

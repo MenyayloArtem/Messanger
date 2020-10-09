@@ -8,7 +8,7 @@ const Messanger = {
               avatarUrl : "https://cdn0.iconfinder.com/data/icons/set-ui-app-android/32/8-512.png",
               name : "Пользователь",
               status : "Статус*",
-              auth : true // Чтобы не появлялась менюшка авторизации поставь тут true
+              auth : false // Чтобы не появлялась менюшка авторизации поставь тут true
           },
         messages : [
             {
