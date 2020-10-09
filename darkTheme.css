@@ -20,6 +20,10 @@
     background: #1d1e2c;
 }
 
+.darkItemList:hover {
+    background: #2a2c3d;
+}
+
 .darkMinorText{
     color: #8b8da9;
 }

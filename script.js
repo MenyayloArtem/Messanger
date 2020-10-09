@@ -4,16 +4,22 @@ const Messanger = {
           blackTheme : true,
           newMessage : '',
           selected : 'chats',
+          selectedItem : {},
+          searchValue : "",
           user : {
+              editSeen : false,
               avatarUrl : "https://cdn0.iconfinder.com/data/icons/set-ui-app-android/32/8-512.png",
               name : "Пользователь",
               status : "Статус*",
-              auth : false // Чтобы не появлялась менюшка авторизации поставь тут true
+              email : 'example@email.com',
+              id : Math.random()
           },
+          editedUser : {},
         messages : [
             {
                 avatarUrl : 'https://cm1.narvii.com/7113/9c1dbcec5765ef821fd3cda8e87f1f7173234739_00.jpg',
                 sender : 'Кто-то',
+                senderId : 1,
                 text : 'Сообщение*'
             }
         ],
@@ -32,6 +38,9 @@ const Messanger = {
                 name : 'Пользователь',
                 lastMessage : 'Гыгы'
                 }
+            ],
+            visibleChats : [
+
             ]
         },
         contacts : {
@@ -42,20 +51,31 @@ const Messanger = {
             {
                 avatarUrl : 'https://cm1.narvii.com/7113/9c1dbcec5765ef821fd3cda8e87f1f7173234739_00.jpg',
                 name : 'Пользователь',
-                lastMessage : 'Что-то'
+                lastMessage : 'Что-то',
+                id : Math.random()
             }
+           ],
+           visibleContacts : [
+
            ]
       }
       }
+    },
+    computed : {
+        // selectedItem(){
+        // return this.chats.allChats[1]
+        // }
     },
     methods : {
       sendMessage(){
           let message = {
                   avatarUrl : this.user.avatarUrl,
                   sender : this.user.name,
+                  senderId : this.user.id,
                   text : this.newMessage.trim()
               }
         if(message.text && message.text.length < 300){
+            console.log(this.selectedItem)
             this.newMessage = ''
             this.messages.push(message)
             let messages = document.getElementById("messages")
@@ -64,16 +84,23 @@ const Messanger = {
             },0)
         }
       },
-      Login(){
-        if(!(this.user.avatarUrl)){
-            this.user.avatarUrl = "https://cdn0.iconfinder.com/data/icons/set-ui-app-android/32/8-512.png"
+      Save(){
+        for(let key in this.editedUser){
+            this.user[key] = this.editedUser[key]
+            this.user.editSeen = false
         }
-        if(this.user.name){
-            this.user.auth = true
-        }   
+      },
+      Search(){
+        let pattern = new RegExp(`${this.searchValue}`,'g');
+        this.chats.visibleChats = this.chats.allChats.filter(item => item.name.match(pattern))
+        this.contacts.visibleContacts = this.contacts.allContacts.filter(item => item.name.match(pattern))
+      },
+      close(){
+          this.user.editSeen = false
       }
     },
     mounted(){
+        this.Search()
         let messages = document.getElementById("messages")
         messages.scrollTo(0,messages.scrollHeight)
     }

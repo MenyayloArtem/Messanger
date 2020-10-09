@@ -56,6 +56,11 @@ body {
     opacity: 0.5;
 }
 
+#alerts {
+    display: flex;
+    align-items: center;
+}
+
 .control:hover {
     opacity: 1;
 }
@@ -400,7 +405,7 @@ input {
     height: 50px;
 }
 
-#input-auth {
+.inputAuth {
     width: 90%;
     height: 42px;
     border: none;
