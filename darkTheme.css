@@ -1,0 +1,29 @@
+.darkSide {
+    background: #1a1b28;
+}
+
+.darkSearch {
+    color: #333445;
+    border-bottom: 1px solid #333445;
+}
+
+.darkDialogHeader {
+    background: #333333;
+    color: white;
+}
+
+.darkMessageText {
+    background: #1a1b28;
+}
+
+.darkItemList {
+    background: #1d1e2c;
+}
+
+.darkMinorText{
+    color: #8b8da9;
+}
+
+.darkSettings {
+    background: #1d1e2c;
+}

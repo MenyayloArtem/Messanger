@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="block">
+        <div id="Wrapper">
+            <div id="bigText">
+                Что-то пошло не так...
+            </div>
+        </div>
+        <div id="antismileWrapper">
+            <div id="antismile">:(</div>
+        </div>
+        <div id="text">
+            По данному запросу ничего не найдено
+        </div>
+    </div>
+</body>
+<style>
+    body {
+        display: flex;
+        max-width: 100%;
+        max-height: 100vh;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, Helvetica, sans-serif;
+        color: white;
+    }
+
+    #block {
+        display: flex;
+        flex-direction: column;
+        background: #22193f;
+        width: 80vw;
+        height: 90vh;
+        border-radius: 5px;
+    }
+
+    #Wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 20%;
+        font-size: 65px;
+    }
+
+    #antismileWrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 10%;
+    }
+
+    #antismile {
+        font-size: 110px;
+        transform: rotate(90deg);
+    }
+
+    #text {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 60%;
+        font-size: 28px;
+        font-weight: 600;
+        word-wrap: break-word;
+    }
+</style>
+</html>

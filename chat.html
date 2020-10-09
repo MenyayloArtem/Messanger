@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messanger</title>
+    <link href="style.css" rel="stylesheet">
+    <link href="darkTheme.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <div id="blackout" v-if="!user.auth">
+            <div id="auth-menu">
+                <div id="auth-menu-block">
+                    <h1 id="title-auth">Авторизация</h1>
+                    <div id="input-auth-block">
+    <input type="text" id="input-auth"
+    placeholder="Введите ссылку на аватарку"
+    v-model="user.avatarUrl"
+    >
+                    </div>
+                    <div id="input-auth-block">
+    <input type="text" id="input-auth"
+    placeholder="Введите имя"
+    v-model="user.name"
+    > 
+                    </div>
+                    <div id="input-auth-block">
+    <input type="text" id="input-auth"
+    placeholder="Введите статус"
+    v-model="user.status"
+    >
+                    </div>
+                    <button id="Log-in" @click="Login">Войти</button>
+                </div>
+            </div>
+        </div>
+        <aside class="sideMenu" :class='{darkSide : blackTheme}'>
+            <div class="content">
+                <div id="user">
+                    <div id="user-avatar">
+<img :src="user.avatarUrl" id="avatar" width="50" height="50">
+                    </div>
+                    <div id="user-info">
+                        <div id="user-name">{{ user.name }}</div>
+                        <div id="user-status">{{ user.status }}</div>
+                    </div>
+                    <div id="alerts"></div>
+                </div>
+                <div id="controls">
+    <div id="chats" class="control"
+    :class="{active : selected == 'chats'}"
+    @click="selected = 'chats'"
+    >
+        <img src="images/messages.png" id="control-img">
+    </div>
+    <div id="friends" class="control"
+    :class="{active : selected == 'contacts'}" @click="selected = 'contacts'">
+        <img src="images/friends.png" id="control-img">
+    </div>
+    <div id="dial" class="control"
+    :class="{active : selected == 'dial'}"  @click="selected = 'dial'">
+        <img src="images/dial.png" id="control-img">
+    </div>
+    <div id="settings-icon" class="control"
+    :class="{active : selected == 'settings'}"  @click="selected = 'settings'">
+        <img src="images/settings.png" id="control-img">
+    </div>
+                </div>
+                    <input class="search" :class="{darkSearch : blackTheme}" placeholder="Search">
+                <div id="itemLists">
+            <div class="itemList"
+            v-if="selected == 'chats'"
+            v-for="chat in chats.allChats"
+            :class="{darkItemList : blackTheme}"
+            >
+        <div class="innerBlock">
+            <div class="itemAvatar">
+                <img :src="chat.avatarUrl" id="avatar-contact">
+            </div>
+            <div class="itemInfo">
+                <div class="itemMajorText">{{ chat.name }}</div>
+                <div class="itemMinorText" :class="{darkMinorText : blackTheme}">{{ chat.lastMessage }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="itemList" 
+    v-if="selected == 'contacts'"
+    v-for="contact in contacts.allContacts"
+    :class="{darkItemList : blackTheme}"
+    >
+        <div class="innerBlock">
+            <div class="itemAvatar">
+                <img :src="contact.avatarUrl" id="avatar-contact">
+            </div>
+            <div class="itemInfo">
+                <div class="itemMajorText">{{ contact.name }}</div>
+                <div class="itemMinorText" :class="{darkMinorText : blackTheme}">{{ contact.lastMessage }}</div>
+            </div>
+        </div>
+    </div>
+        <div class="settings"
+        v-if="selected == 'settings'"
+        :class="{darkSettings : blackTheme}"
+        >
+            <div class="setting">
+            <div id="setting-text">Темная тема</div>
+            <label id="checkbox">
+                <input type="checkbox" v-model="blackTheme">
+            </label>
+        </div>
+        </div>
+        
+                </div>
+            </div>
+        </aside>
+        <main id="chat">
+            <div id="dialog-header">
+                     <div id="dialog-avatar-section">
+                         <img id="dialog-avatar" src="https://sun9-76.userapi.com/ZGeclmvivsjkMdnMMTBFcngE1VWtlZMFnokKqQ/GLW2Wv76gZM.jpg?ava=1">
+                     </div>
+                     <div id="dialog-info">
+        <div id="dialog-name">Разработчики</div>
+        <div id="dialog-desc">Разрабатываем мессенджер</div>
+                     </div>
+                     <div id="dialog-controls">
+                         <a href="#" id="invite">Пригласить</a>
+                         <div id="settings"></div>
+                     </div>
+                 </div>
+            <div class="content">
+                <div id="messages">
+                    <div class="message"
+                    v-for="(message,i) in messages"
+                    :class="{yourMessage : message.sender == user.name}"
+                    :key="i"
+                    >
+        <div id="user-avatar-container">
+    <img :src="message.avatarUrl" id="avatar" width="55">
+                        </div>
+                        <div id="msg-block">
+                            <div class="msgSender">{{ message.sender}}</div>
+                            <div class="msgText"
+                            :class="{darkMessageText : blackTheme}"
+                            >{{ message.text }}</div>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+           <div id="new-message">
+                    <div id="message-input">
+                        <input type="text" 
+                        id="msg-input" 
+                        autocomplete="off" 
+                        placeholder="Введите сообщение"
+                        v-model="newMessage"
+                        @keyup.enter="sendMessage"
+                        >  
+                    </div>
+                    <div id="extend-msg">
+                            <div id="extend-msg-btn" >
+                <img src="images/clip.png" id="extend-msg-img">
+                            </div>
+                            <div id="extend-msg-btn">
+                <img src="images/emoji.png" id="extend-msg-img">
+                            </div>
+                            <div id="extend-msg-btn">
+                <img src="images/telegram.png"  id="extend-msg-img" @click="sendMessage">
+                            </div>
+                        </div>
+                </div>
+        </main>
+    </div>
+</body>
+<script src="https://unpkg.com/vue@next"></script>
+<script src="script.js"></script>
+</html>
