@@ -75,7 +75,6 @@ const Messanger = {
                   text : this.newMessage.trim()
               }
         if(message.text && message.text.length < 300){
-            console.log(this.selectedItem)
             this.newMessage = ''
             this.messages.push(message)
             let messages = document.getElementById("messages")

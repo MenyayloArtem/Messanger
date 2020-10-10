@@ -515,3 +515,21 @@ input {
     color: #706f8f;
     font-weight: 500;
 }
+
+#messages::-webkit-scrollbar {
+    width: 3px;
+}
+
+#messages::-webkit-scrollbar-thumb {
+    background: #333333;
+    border-radius: 24px;
+}
+
+@media (max-width : 768px){
+    .sideMenu {
+        display: none;
+    }
+    #chat {
+        width: 100%;
+    }
+}
