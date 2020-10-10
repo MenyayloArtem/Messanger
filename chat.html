@@ -40,7 +40,10 @@
     v-model="editedUser.email"
     >
                                         </div>
-    <button id="Log-in" @click="Save()">Сохранить</button>
+    <button class="saveBtn"
+    :class="{darkSaveBtn : blackTheme}"
+    @click="Save()"
+    >Сохранить</button>
                 </div>
             </div>
         </div>
@@ -100,7 +103,9 @@
             </div>
             <div class="itemInfo">
                 <div class="itemMajorText">{{ chat.name }}</div>
-                <div class="itemMinorText" :class="{darkMinorText : blackTheme}">{{ chat.lastMessage }}</div>
+                <div class="itemMinorText" :class="{darkMinorText : blackTheme}">
+{{ chat.description }}
+                </div>
             </div>
         </div>
     </div>
@@ -141,8 +146,8 @@
                          <img id="dialog-avatar" width="50" :src="selectedItem.avatarUrl">
                      </div>
                      <div id="dialog-info">
-        <div id="dialog-name">{{ selectedItem.name }}</div>
-        <div id="dialog-desc">Разрабатываем мессенджер</div>
+        <div id="dialog-name">{{ selectedItem.name || "Выберите диалог" }}</div>
+        <div id="dialog-desc" v-if="selectedItem.description">{{ selectedItem.description}}</div>
                      </div>
                      <div id="dialog-controls">
                          <a href="#" id="invite">Пригласить</a>
@@ -186,7 +191,7 @@
                 <img src="images/emoji.png" id="extend-msg-img">
                             </div>
                             <div id="extend-msg-btn">
-                <img src="images/telegram.png"  id="extend-msg-img" @click="sendMessage">
+                <img src="images/darkTelegram.png"  id="extend-msg-img" @click="sendMessage">
                             </div>
                         </div>
                 </div>

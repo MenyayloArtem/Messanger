@@ -31,7 +31,7 @@ const Messanger = {
                 {
     avatarUrl : 'https://sun9-76.userapi.com/ZGeclmvivsjkMdnMMTBFcngE1VWtlZMFnokKqQ/GLW2Wv76gZM.jpg?ava=1',
     name : 'Разработчики',
-    lastMessage : 'Разрабатываем мессeнджер'.length >= 24 ? 'Разрабатываем мессeнджер'.slice(0,22) + '...' : 'Разрабатываем мессeнджер'
+    description : 'Разрабатываем мессeнджер'
                 },
                 {
                 avatarUrl : 'https://cm1.narvii.com/7113/9c1dbcec5765ef821fd3cda8e87f1f7173234739_00.jpg',

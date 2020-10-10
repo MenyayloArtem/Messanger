@@ -416,7 +416,7 @@ input {
     color: #333333;
 }
 
-#Log-in {
+.saveBtn {
     width: 90%;
     height: 40px;
     display: flex;
