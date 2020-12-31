@@ -7,29 +7,26 @@
     <link href="style.css" rel="stylesheet">
 </head>
 <body>
-    <div id="background" v-if="!user.auth">
-        <div id="auth-menu">
-            <div id="auth-menu-block">
-                <h1 id="title-auth">Регистрация</h1>
-                <div id="input-auth-block">
-<input type="text" id="input-auth"
-placeholder="Введите логин"
->
+    <div id="background">
+            <div id="auth-menu">
+                <div id="auth-menu-block">
+                    <h1 id="title-auth">Войти</h1>
+    <div id="input-auth-block">
+    <input type="text" class="inputAuth" id="name"
+    placeholder="Введите имя"
+    > 
+    </div>
+    <div id="input-auth-block">
+    <input type="password" class="inputAuth" id="password"
+    placeholder="Введите пароль"
+    >
+    </div>
+    <button class="saveBtn"
+    onclick="auth()"
+    >Войти</button>
                 </div>
-                <div id="input-auth-block">
-<input type="password" id="input-auth"
-placeholder="Введите пароль"
-> 
-                </div>
-                <div id="input-auth-block">
-<input type="password" id="input-auth"
-placeholder="Повторите пароль"
->
-                </div>
-                <button id="Log-in" @click="Login">Войти</button>
             </div>
         </div>
-    </div>
 </body>
 <style>
     #background {
@@ -41,4 +38,26 @@ placeholder="Повторите пароль"
         background: #22193f;
     }
 </style>
+<script>
+    async function auth(){
+        let name = document.getElementById('name').value
+        let password = document.getElementById('password').value
+        console.log(name,password)
+        let auth = await fetch('/auth',{
+            method : 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body : JSON.stringify({
+                nickname : name,
+                password
+            })
+        })
+        let res = await auth.json()
+        console.log(res)
+        if(res.authorizated){
+            window.location.href = '/chat.html'
+        }
+    }
+</script>
 </html>

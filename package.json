@@ -1,0 +1,33 @@
+{
+  "name": "messanger",
+  "version": "1.0.0",
+  "description": "messanger",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MenyayloArtem/Messanger.git"
+  },
+  "keywords": [
+    "messanger",
+    "project"
+  ],
+  "author": "Artem",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MenyayloArtem/Messanger/issues"
+  },
+  "homepage": "https://github.com/MenyayloArtem/Messanger#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "multer": "^1.4.2",
+    "mysql2": "^2.2.5",
+    "socket.io": "^3.0.4"
+  }
+}

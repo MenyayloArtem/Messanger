@@ -1,7 +1,9 @@
+let socket = io.connect()
+
 const Messanger = {
     data() {
       return {
-          blackTheme : true,
+          blackTheme : JSON.parse(localStorage.getItem('blackTheme')) || false,
           newMessage : '',
           selected : 'chats',
           selectedItem : {},
@@ -12,31 +14,28 @@ const Messanger = {
               name : "Пользователь",
               status : "Статус*",
               email : 'example@email.com',
-              id : Math.random()
+              permission : 'guest',
+              id : ''
           },
           editedUser : {},
-        messages : [
-            {
-                avatarUrl : 'https://cm1.narvii.com/7113/9c1dbcec5765ef821fd3cda8e87f1f7173234739_00.jpg',
-                sender : 'Кто-то',
-                senderId : 1,
-                text : 'Сообщение*'
-            }
-        ],
         chats : {
             options : {
                 active : true
             },
             allChats : [
                 {
-    avatarUrl : 'https://sun9-76.userapi.com/ZGeclmvivsjkMdnMMTBFcngE1VWtlZMFnokKqQ/GLW2Wv76gZM.jpg?ava=1',
-    name : 'Разработчики',
-    description : 'Разрабатываем мессeнджер'
+            id : 1,
+            avatarUrl : 'https://sun9-76.userapi.com/ZGeclmvivsjkMdnMMTBFcngE1VWtlZMFnokKqQ/GLW2Wv76gZM.jpg?ava=1',
+            name : 'Разработчики',
+            description : 'Разрабатываем мессeнджер',
+            messages : [],
                 },
                 {
+                id : 2,
                 avatarUrl : 'https://cm1.narvii.com/7113/9c1dbcec5765ef821fd3cda8e87f1f7173234739_00.jpg',
                 name : 'Пользователь',
-                lastMessage : 'Гыгы'
+                lastMessage : 'Гыгы',
+                messages : []
                 }
             ],
             visibleChats : [
@@ -68,20 +67,56 @@ const Messanger = {
     },
     methods : {
       sendMessage(){
-          let message = {
+            let message = {
                   avatarUrl : this.user.avatarUrl,
                   sender : this.user.name,
                   senderId : this.user.id,
-                  text : this.newMessage.trim()
+                  text : this.newMessage.trim(),
+                  room : this.selectedItem.id,
+                  imgSrc : ''
               }
+
+          let file = document.getElementById('file').files[0]
+          let reader = new FileReader()
+        
+          if(file){
+              let promise = new Promise((resolve,reject)=>{
+              reader.onloadend = () => {
+              let imgSrc = reader.result
+              resolve(imgSrc)
+          }
+          })
+
+          promise.then(result => {
+              message.imgSrc = result
+              if(message.text && message.text.length < 300){
+                this.newMessage = ''
+                socket.emit('sendMessage',message)
+                let messages = document.getElementById("messages")
+                setTimeout(()=>{
+                messages.scrollTo(0,messages.scrollHeight)
+                },0)
+            }
+          })
+          
+
+            reader.readAsDataURL(file)
+            document.getElementById('file').value = ''
+           return
+          } else {
+              message.imgSrc = ''
+          }
+          
+          
         if(message.text && message.text.length < 300){
             this.newMessage = ''
-            this.messages.push(message)
+            socket.emit('sendMessage',message)
             let messages = document.getElementById("messages")
             setTimeout(()=>{
             messages.scrollTo(0,messages.scrollHeight)
             },0)
         }
+        
       },
       Save(){
         for(let key in this.editedUser){
@@ -96,10 +131,31 @@ const Messanger = {
       },
       close(){
           this.user.editSeen = false
+      },
+      test(){
+        localStorage.setItem('blackTheme',!this.blackTheme)
+      },
+      select(chat){
+        const previousRoom = this.selectedItem.id
+        this.selectedItem = chat
+        const currentRoom = this.selectedItem.id
+        console.log(previousRoom,currentRoom)
+        socket.emit('changeRoom',{
+            previousRoom,currentRoom
+        })
       }
     },
-    mounted(){
+    async mounted(){
+        let user = await fetch('/accountData')
+        let res = await user.json()
+        console.log(res)
+        this.user.name = res.name
+        this.user.id = res.id
+        this.user.permission = res.permission
         this.Search()
+        socket.on('addMessage',(message)=>{
+            this.selectedItem.messages.push(message)
+        })
         let messages = document.getElementById("messages")
         messages.scrollTo(0,messages.scrollHeight)
     }

@@ -183,7 +183,7 @@ input {
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 525px;
+    height: 725px;
     overflow-y: scroll;
 }
 
@@ -236,12 +236,14 @@ input {
 
 .yourMessage > .msg-block {
     text-align: end;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
 
 .yourMessage > .msg-block > .msgText {
     border-radius: 5px 0px 10px 10px;
     background-color: white;
-    border: 1px solid #44337b;
     color: #333333;
 }
 

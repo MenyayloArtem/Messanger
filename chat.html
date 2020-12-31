@@ -95,7 +95,7 @@
             v-if="selected == 'chats'"
             v-for="chat in chats.visibleChats"
             :class="{darkItemList : blackTheme}"
-            @click="selectedItem = chat"
+            @click="select(chat)"
             >
         <div class="innerBlock">
             <div class="itemAvatar">
@@ -132,7 +132,7 @@
             <div class="setting">
             <div id="setting-text">Темная тема</div>
             <label id="checkbox">
-                <input type="checkbox" v-model="blackTheme">
+                <input type="checkbox" v-model="blackTheme" @click="test">
             </label>
         </div>
         </div>
@@ -157,7 +157,7 @@
             <div class="content">
                 <div id="messages">
                     <div class="message"
-                    v-for="(message,i) in messages"
+                    v-for="(message,i) in selectedItem.messages"
                     :class="{yourMessage : message.senderId == user.id}"
                     :key="i"
                     >
@@ -169,6 +169,7 @@
                             <div class="msgText"
                             :class="{darkMessageText : blackTheme}"
                             >{{ message.text }}</div>
+                            <img v-if="message.imgSrc" :src="message.imgSrc" alt="" width="400">
                         </div>
                     </div>
                 </div> 
@@ -186,6 +187,7 @@
                     <div id="extend-msg">
                             <div id="extend-msg-btn" >
                 <img src="images/clip.png" id="extend-msg-img">
+                <input type="file" value="" id="file" accept="images*/">
                             </div>
                             <div id="extend-msg-btn">
                 <img src="images/emoji.png" id="extend-msg-img">
@@ -198,6 +200,7 @@
         </main>
     </div>
 </body>
+<script src="/socket.io/socket.io.js"></script>
 <script src="https://unpkg.com/vue@next"></script>
 <script src="script.js"></script>
 </html>
