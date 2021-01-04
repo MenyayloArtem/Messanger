@@ -3,201 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messanger</title>
-    <link href="style.css" rel="stylesheet">
-    <link href="darkTheme.css" rel="stylesheet">
+    <title>Chat</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app">
-        <div id="blackout"
-        v-if="user.editSeen"
-        @keyup.esc="close"
-        >
-            <div id="auth-menu">
-                <div id="auth-menu-block">
-                    <h1 id="title-auth">Редактировать</h1>
-                    <div id="input-auth-block">
-    <input type="text" class="inputAuth"
-    placeholder="Введите ссылку на аватарку"
-    v-model="editedUser.avatarUrl"
-    >
-                    </div>
-                    <div id="input-auth-block">
-    <input type="text" class="inputAuth"
-    placeholder="Введите имя"
-    v-model="editedUser.name"
-    > 
-                    </div>
-                    <div id="input-auth-block">
-    <input type="text" class="inputAuth"
-    placeholder="Введите статус"
-    v-model="editedUser.status"
-    >
-                    </div>
-    <div id="input-auth-block">
-    <input type="email" class="inputAuth"
-    placeholder="Введите email"
-    v-model="editedUser.email"
-    >
-                                        </div>
-    <button class="saveBtn"
-    :class="{darkSaveBtn : blackTheme}"
-    @click="Save()"
-    >Сохранить</button>
+        <div id="sidebar">
+            <div id="userInfo">
+                <div id="avatarBlock">
+                    <img width="60px" src="https://cdn0.iconfinder.com/data/icons/set-ui-app-android/32/8-512.png" alt="">
+                </div>
+                <div id="userInfoBlock">
+                    <div id="username">{{ user.name }}</div>
+                    <div id="userStatus">{{ user.status }}</div>
+                </div>
+                <div id="editBlock">
+                    <img width="30px" src="images/edit.png" alt="">
                 </div>
             </div>
+            <div id="menu">
+                <div class="menuItem" 
+                @click="selected = 'chats'"
+                :class="{active : selected == 'chats'}">
+                    <img src="images/messages.png">
+                </div>
+                <div class="menuItem" 
+                @click="selected = 'contacts'"
+                :class="{active : selected == 'contacts'}">
+                    <img src="images/friends.png">
+                </div>
+                <div class="menuItem" 
+                @click="selected = 'dial'"
+                :class="{active : selected == 'dial'}">
+                    <img src="images/dial.png">
+                </div>
+                <div class="menuItem" 
+                @click="selected = 'settings'"
+                :class="{active : selected == 'settings'}">
+                    <img src="images/settings.png">
+                </div>
         </div>
-        <aside class="sideMenu" :class='{darkSide : blackTheme}'>
-            <div class="content">
-                <div id="user">
-                    <div id="user-avatar">
-<img :src="user.avatarUrl" id="avatar" width="50" height="50">
-                    </div>
-                    <div id="user-info">
-                        <div id="user-name">{{ user.name }}</div>
-                        <div id="user-status">{{ user.status }}</div>
-                    </div>
-                    <div class="control">
-        <img src="images/edit.png"
-        width="25"
-        @click="user.editSeen = true"
-        >
-                    </div>
-                </div>
-                <div id="controls">
-    <div id="chats" class="control"
-    :class="{active : selected == 'chats'}"
-    @click="selected = 'chats'"
-    >
-        <img src="images/messages.png" id="control-img">
-    </div>
-    <div id="friends" class="control"
-    :class="{active : selected == 'contacts'}" @click="selected = 'contacts'">
-        <img src="images/friends.png" id="control-img">
-    </div>
-    <div id="dial" class="control"
-    :class="{active : selected == 'dial'}"  @click="selected = 'dial'">
-        <img src="images/dial.png" id="control-img">
-    </div>
-    <div id="settings-icon" class="control"
-    :class="{active : selected == 'settings'}"  @click="selected = 'settings'">
-        <img src="images/settings.png" id="control-img">
-    </div>
-                </div>
-                    <input class="search"
-                    placeholder="Search"
-                    :class="{darkSearch : blackTheme}"
-                    v-model="searchValue"
-                    @input="Search"
-                    >
-                <div id="itemLists">
-            <div class="itemList"
-            v-if="selected == 'chats'"
+        <input type="text"
+        placeholder="Search"
+        id="search"
+        v-model="searchValue"
+        @input="Search">
+        <div id="chats">
+            <div class="chatItem"
             v-for="chat in chats.visibleChats"
-            :class="{darkItemList : blackTheme}"
-            @click="select(chat)"
-            >
-        <div class="innerBlock">
-            <div class="itemAvatar">
-                <img :src="chat.avatarUrl" id="avatar-contact">
-            </div>
-            <div class="itemInfo">
-                <div class="itemMajorText">{{ chat.name }}</div>
-                <div class="itemMinorText" :class="{darkMinorText : blackTheme}">
-{{ chat.description }}
+            @click="select(chat)">
+                <div class="chatAvatar">
+                    <img :src="chat.avatarUrl">
+                </div>
+                <div class="chatInfo">
+                    <div class="chatName">{{ chat.name}}</div>
+                    <div class="chatLastMessage">{{ chat.description }}</div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="itemList" 
-    v-if="selected == 'contacts'"
-    v-for="contact in contacts.visibleContacts"
-    :class="{darkItemList : blackTheme}"
-    @click="selectedItem = contact"
-    >
-        <div class="innerBlock">
-            <div class="itemAvatar">
-                <img :src="contact.avatarUrl" id="avatar-contact">
-            </div>
-            <div class="itemInfo">
-                <div class="itemMajorText">{{ contact.name }}</div>
-                <div class="itemMinorText" :class="{darkMinorText : blackTheme}">{{ contact.lastMessage }}</div>
-            </div>
-        </div>
-    </div>
-        <div class="settings"
-        v-if="selected == 'settings'"
-        :class="{darkSettings : blackTheme}"
-        >
-            <div class="setting">
-            <div id="setting-text">Темная тема</div>
-            <label id="checkbox">
-                <input type="checkbox" v-model="blackTheme" @click="test">
-            </label>
-        </div>
-        </div>
-        
+        <div id="chat">
+            <div id="chatHeader">
+                <div id="chatHeaderWrapper">
+                    <div id="chatAvatar">
+    <img :src="selectedItem.avatarUrl"/>
+                </div>
+                <div id="chatInfo">
+                    <div id="chatName">{{ selectedItem.name }}</div>
+                    <div id="chatDesc">{{ selectedItem.description }}</div>
+                </div>
+                </div>
+                <div id="invite">
+                    <a href="#">Пригласить</a>
                 </div>
             </div>
-        </aside>
-        <main id="chat">
-            <div id="dialog-header">
-                     <div id="dialog-avatar-section">
-                         <img id="dialog-avatar" width="50" :src="selectedItem.avatarUrl">
-                     </div>
-                     <div id="dialog-info">
-        <div id="dialog-name">{{ selectedItem.name || "Выберите диалог" }}</div>
-        <div id="dialog-desc" v-if="selectedItem.description">{{ selectedItem.description}}</div>
-                     </div>
-                     <div id="dialog-controls">
-                         <a href="#" id="invite">Пригласить</a>
-                         <div id="settings"></div>
-                     </div>
-                 </div>
-            <div class="content">
-                <div id="messages">
-                    <div class="message"
-                    v-for="(message,i) in selectedItem.messages"
-                    :class="{yourMessage : message.senderId == user.id}"
-                    :key="i"
+            <div id="messages">
+                <div class="message"
+                v-for="message in selectedItem.messages"
+                >
+                    <div class="senderInfo">
+                        <div class="senderAvatar">
+                            <img :src="message.avatarUrl">
+                        </div>
+                        <div class="senderName">{{ message.sender }}</div>
+                        <div class="dispathTime">00:00</div>
+                    </div>
+                    <div class="messageText">
+                        <div id="text">
+                            {{ message.text }}
+                        </div>
+                        <img
+                        width="400"
+                        v-if="message.imgSrc"
+                        :src="message.imgSrc">
+                    </div>
+                </div>
+            </div>
+            
+            <div id="chatFooter">
+                <div id="inputWrapper">
+                    <input type="text"
+                    id="inputMessage"
+                    placeholder="Введите сообщение"
+                    v-model="message.text"
+                    @keyuo.enter = "sendMessage"
                     >
-        <div id="user-avatar-container">
-    <img :src="message.avatarUrl" id="avatar" width="55">
-                        </div>
-                        <div class="msg-block">
-                            <div class="msgSender">{{ message.sender}}</div>
-                            <div class="msgText"
-                            :class="{darkMessageText : blackTheme}"
-                            >{{ message.text }}</div>
-                            <img v-if="message.imgSrc" :src="message.imgSrc" alt="" width="400">
-                        </div>
+                    <div class="imgBtn">
+                        <img src="images/emoji.png" height="30px">
                     </div>
-                </div> 
-            </div>
-           <div id="new-message">
-                    <div id="message-input">
-                        <input type="text" 
-                        id="msg-input" 
-                        autocomplete="off" 
-                        placeholder="Введите сообщение"
-                        v-model="newMessage"
-                        @keyup.enter="sendMessage"
-                        >  
+                    <div class="imgBtn">
+                        <img src="images/clip.png" height="30px">
+                        <input type="file" id="file" @input="uploadFile">
+                    </div>  
+                    <div class="imgBtn">
+                        <img src="images/telegram.png" @click="sendMessage" height="30px">
                     </div>
-                    <div id="extend-msg">
-                            <div id="extend-msg-btn" >
-                <img src="images/clip.png" id="extend-msg-img">
-                <input type="file" value="" id="file" accept="images*/">
-                            </div>
-                            <div id="extend-msg-btn">
-                <img src="images/emoji.png" id="extend-msg-img">
-                            </div>
-                            <div id="extend-msg-btn">
-                <img src="images/darkTelegram.png"  id="extend-msg-img" @click="sendMessage">
-                            </div>
-                        </div>
                 </div>
-        </main>
+                <div id="previewImg" v-if="message.imgSrc">
+                    <img :src="message.imgSrc">
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 <script src="/socket.io/socket.io.js"></script>

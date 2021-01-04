@@ -4,7 +4,10 @@ const Messanger = {
     data() {
       return {
           blackTheme : JSON.parse(localStorage.getItem('blackTheme')) || false,
-          newMessage : '',
+          message : {
+              text : '',
+              imgSrc : ''
+          },
           selected : 'chats',
           selectedItem : {},
           searchValue : "",
@@ -28,8 +31,17 @@ const Messanger = {
             avatarUrl : 'https://sun9-76.userapi.com/ZGeclmvivsjkMdnMMTBFcngE1VWtlZMFnokKqQ/GLW2Wv76gZM.jpg?ava=1',
             name : 'Разработчики',
             description : 'Разрабатываем мессeнджер',
-            messages : [],
-                },
+            messages : [
+        {
+            avatarUrl : 'https://cdn0.iconfinder.com/data/icons/set-ui-app-android/32/8-512.png',
+            sender : 'Кто-то',
+            senderId : 1,
+            text : 'Аааааааааааааа',
+            room : 1,
+            imgSrc : ''
+        }
+            ],
+            },
                 {
                 id : 2,
                 avatarUrl : 'https://cm1.narvii.com/7113/9c1dbcec5765ef821fd3cda8e87f1f7173234739_00.jpg',
@@ -67,47 +79,16 @@ const Messanger = {
     },
     methods : {
       sendMessage(){
+          console.log('Отправка..')
             let message = {
                   avatarUrl : this.user.avatarUrl,
                   sender : this.user.name,
                   senderId : this.user.id,
-                  text : this.newMessage.trim(),
+                  text : this.message.text.trim(),
                   room : this.selectedItem.id,
-                  imgSrc : ''
+                  imgSrc : this.message.imgSrc
               }
 
-          let file = document.getElementById('file').files[0]
-          let reader = new FileReader()
-        
-          if(file){
-              let promise = new Promise((resolve,reject)=>{
-              reader.onloadend = () => {
-              let imgSrc = reader.result
-              resolve(imgSrc)
-          }
-          })
-
-          promise.then(result => {
-              message.imgSrc = result
-              if(message.text && message.text.length < 300){
-                this.newMessage = ''
-                socket.emit('sendMessage',message)
-                let messages = document.getElementById("messages")
-                setTimeout(()=>{
-                messages.scrollTo(0,messages.scrollHeight)
-                },0)
-            }
-          })
-          
-
-            reader.readAsDataURL(file)
-            document.getElementById('file').value = ''
-           return
-          } else {
-              message.imgSrc = ''
-          }
-          
-          
         if(message.text && message.text.length < 300){
             this.newMessage = ''
             socket.emit('sendMessage',message)
@@ -116,7 +97,9 @@ const Messanger = {
             messages.scrollTo(0,messages.scrollHeight)
             },0)
         }
-        
+        this.message.text = ''
+        this.message.imgSrc = ""
+        document.getElementById('file').value = ''
       },
       Save(){
         for(let key in this.editedUser){
@@ -131,6 +114,30 @@ const Messanger = {
       },
       close(){
           this.user.editSeen = false
+      },
+      uploadFile(){
+          let file = document.getElementById('file').files[0]
+          let reader = new FileReader()
+        console.log(file.size)
+          if(file){
+              let promise = new Promise((resolve,reject)=>{
+              reader.onloadend = () => {
+              let imgSrc = reader.result
+              resolve(imgSrc)
+          }
+          })
+
+          promise.then(result => {
+              this.message.imgSrc = result.slice(0,result.length-300)
+          })
+          
+
+            reader.readAsDataURL(file)
+            document.getElementById('file').value = ''
+           return
+          } else {
+              message.imgSrc = ''
+          }
       },
       test(){
         localStorage.setItem('blackTheme',!this.blackTheme)
@@ -163,4 +170,4 @@ const Messanger = {
 
     
   
-  Vue.createApp(Messanger).mount('#app')
+ Vue.createApp(Messanger).mount('#app')

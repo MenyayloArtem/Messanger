@@ -8,16 +8,24 @@ const multer = require('multer')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
 const jwt = require('jsonwebtoken')
+const mysql = require('mysql2')
+const bcrypt = require("bcrypt")
+const pool = mysql.createPool({
+    host : "localhost",
+    database : "messanger",
+    user : "mysql",
+    password : "mysql"
+}).promise()
 const secret = 'secret'
 app.use(session({
     secret,
     cookie : {
-        httpOnly : true
+        httpOnly : true,
+        secure : true
     }
 }))
 app.use(cookieParser())
 app.use(bodyParser.json())
-
 const db = [
     {
         id : 1,
@@ -68,30 +76,34 @@ app.get(/./,(req,res)=>{
 app.post('/auth',(req,res)=>{
     try {
         let {nickname,password} = req.body
-    if(Boolean(db.find(item => item.nickname == nickname))){
-        let user = db.find(item => item.nickname == nickname)
-        if(user.password === password){
-            let token = jwt.sign({
-                name : req.body.nickname,
-                permission : user.permission
-            },secret)
-            res.cookie('token',"Bearer " + token)
-            res.json({
-                message : 'Успешная авторизация',
-                authorizated : true
-            })
-        } else {
-            res.json({
-                message : 'Пароли не совпадают',
-                authorizated : false
-            })
-        }
-    } else {
-        res.json({
-            message : 'Имени не существует',
-            authorizated : false
+        pool.execute("SELECT * FROM users WHERE nickname = ?",
+        [nickname]).then(([rows])=>{
+            let user = rows[0]
+            if(user.nickname){
+                let isCorrectPassword = bcrypt.compareSync(password,user.password)
+                if(isCorrectPassword){
+                    let token = jwt.sign({
+                        name : req.body.nickname,
+                        permission : user.permission
+                    },secret)
+                    res.cookie('token',"Bearer " + token)
+                    res.json({
+                        message : 'Успешная авторизация',
+                        authorizated : true
+                    })
+                } else {
+                    res.json({
+                        message : 'Пароли не совпадают',
+                        authorizated : false
+                    })
+                }
+            } else {
+                res.json({
+                    message : 'Имени не существует',
+                    authorizated : false
+                })
+            }
         })
-    }
     } catch (err) {
         res.json({
             message : 'Ошибка сервера',
