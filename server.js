@@ -1,11 +1,9 @@
 const app = require('express')()
 const server = require('http').createServer(app)
 const io = require('socket.io')(server)
-const { read } = require('fs')
 const path = require('path')
 const bodyParser = require('body-parser')
 const multer = require('multer')
-const session = require('express-session')
 const cookieParser = require('cookie-parser')
 const jwt = require('jsonwebtoken')
 const mysql = require('mysql2')
@@ -17,30 +15,8 @@ const pool = mysql.createPool({
     password : "mysql"
 }).promise()
 const secret = 'secret'
-app.use(session({
-    secret,
-    cookie : {
-        httpOnly : true,
-        secure : true
-    }
-}))
 app.use(cookieParser())
 app.use(bodyParser.json())
-const db = [
-    {
-        id : 1,
-        nickname : 'Artem',
-        password : '1234',
-        permission : 'admin'
-    },
-    {
-        id : 2,
-        nickname : 'Xz',
-        password : '3425',
-        permission : 'user'
-    }
-]
-
 
 app.get('/',(req,res)=>{
     res.sendFile(path.join(__dirname,'registration.html'))
@@ -84,7 +60,8 @@ app.post('/auth',(req,res)=>{
                 if(isCorrectPassword){
                     let token = jwt.sign({
                         name : req.body.nickname,
-                        permission : user.permission
+                        permission : user.permission,
+                        id : user.id
                     },secret)
                     res.cookie('token',"Bearer " + token)
                     res.json({
@@ -114,15 +91,59 @@ app.post('/auth',(req,res)=>{
     
 })
 
+app.post('/registration',(req,res)=>{
+    try {
+    let {nickname} = req.body
+        pool.execute(`SELECT * FROM users WHERE nickname = '${nickname}'`)
+        .then(([rows])=>{
+            if (rows.length){
+                res.json({
+                    message : "Ник занят",
+                    susses : false
+                })
+            } else {
+                pool.execute('INSERT INTO users(nickname,password) VALUES (?,?)',
+                [nickname,bcrypt.hashSync(req.body.password,17)
+                ])
+                .then(()=>{
+                    res.json({
+                        message : 'Успешная регистрация',
+                        susses : true
+                    })
+                })
+            }
+        })
+    } catch(err){
+        console.log(`Error : ${err.message}`)
+    }
+    
+})
+
 io.sockets.on('connect',(socket)=>{
     socket.on('sendMessage',(message)=>{
-        io.sockets.to(message.room).emit('addMessage',message)
+pool.execute('INSERT INTO messages(`senderID`,`text`,`img`,`room`,`avatarUrl`) VALUES(?,?,?,?,?)',
+    [message.senderId,
+    message.text,
+    message.imgSrc,
+    message.room,
+    message.avatarUrl]
+    )
+    io.sockets.to(message.room).emit('addMessage',message)
     })
     socket.on('changeRoom',(data)=>{
         if (data.previousRoom){
             socket.leave(data.previousRoom)
         }
         socket.join(data.currentRoom)
+        pool.execute(`SELECT messages.text, messages.img, messages.avatarUrl,
+        users.nickname AS sender
+        FROM messages
+        JOIN users
+        ON messages.senderID = users.id
+        WHERE messages.room = ${data.currentRoom}`)
+        .then(([rows])=>{
+           socket.emit('getMessages',rows)
+        })
     })
 })
 

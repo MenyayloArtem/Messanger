@@ -4,10 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/defaultTheme.css">
 </head>
 <body>
     <div id="app">
+        <div id="blackout" v-if="activeBlackout" @keyup.esc = 'close'>
+            <div id="auth-menu">
+                <div id="auth-menu-block">
+    <h1 id="title-auth">{{ blackoutContent.title }}</h1>
+    <div class="blackoutMenuItem" v-for="item in blackoutContent.items ">
+        <div class="setting">
+            <div class="settingName dark" @click="item.action">{{ item.name }}</div>
+        </div>
+    </div>
+    <button class="saveBtn">Сохранить</button>
+                </div>
+            </div>
+        </div>
         <div id="sidebar">
             <div id="userInfo">
                 <div id="avatarBlock">
@@ -48,7 +62,7 @@
         id="search"
         v-model="searchValue"
         @input="Search">
-        <div id="chats">
+        <div id="menuItems" v-if="selected == 'chats'">
             <div class="chatItem"
             v-for="chat in chats.visibleChats"
             @click="select(chat)">
@@ -59,6 +73,16 @@
                     <div class="chatName">{{ chat.name}}</div>
                     <div class="chatLastMessage">{{ chat.description }}</div>
                 </div>
+            </div>
+        </div>
+        <div id="menuItems" v-if="selected == 'settings'">
+            <div class="setting" @click="chooseSetting('theme')">
+                <div class="settingName" >Тема :</div>
+                <div class="settingSelected">Default</div>
+            </div>
+            <div class="setting">
+                <div class="settingName">Язык :</div>
+                <div class="settingSelected">Русский</div>
             </div>
         </div>
     </div>
@@ -105,15 +129,15 @@
                     <input type="text"
                     id="inputMessage"
                     placeholder="Введите сообщение"
+                    @keyup.enter="sendMessage()"
                     v-model="message.text"
-                    @keyuo.enter = "sendMessage"
                     >
                     <div class="imgBtn">
                         <img src="images/emoji.png" height="30px">
                     </div>
                     <div class="imgBtn">
                         <img src="images/clip.png" height="30px">
-                        <input type="file" id="file" @input="uploadFile">
+                        <!-- <input type="file" id="file" @input="uploadFile"> -->
                     </div>  
                     <div class="imgBtn">
                         <img src="images/telegram.png" @click="sendMessage" height="30px">

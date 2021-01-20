@@ -24,7 +24,6 @@ body {
     align-items: center;
     width: 30%;
     height: 100%;
-    background: #261c46;
 }
 
 #chat {
@@ -127,7 +126,7 @@ input[type="file"] {
     width: 30px;
     height:30px;
     opacity: 0;
-    background: url('images/test.jpg');
+    background: url('../images/test.jpg');
 }
 
 #search {
@@ -147,7 +146,7 @@ input[type="file"] {
         width: 0px;
 }
 
-#chats {
+#menuItems {
     display: flex;
     flex-direction: column;
     width: 90%;
@@ -433,6 +432,33 @@ input[type="file"] {
     background: #44337b;
     color: white;
     font-size: 24px;
+}
+
+.setting {
+    display: flex;
+    width: 100%;
+    height: 50px;
+}
+
+.settingName,.settingSelected {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.settingSelected {
+    font-size: 14px;
+    opacity: .8;
+    font-weight: 500;
+}
+
+.dark {
+    color: #333333;
+    justify-content: flex-start;
 }
 
 @media (max-width : 768px){

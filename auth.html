@@ -10,25 +10,20 @@
     <div id="background">
             <div id="auth-menu">
                 <div id="auth-menu-block">
-                    <h1 id="title-auth">Регистрация</h1>
+                    <h1 id="title-auth">Войти</h1>
     <div id="input-auth-block">
     <input type="text" class="inputAuth" id="name"
     placeholder="Введите имя"
     > 
     </div>
     <div id="input-auth-block">
-        <input type="password" class="inputAuth" id="password"
-        placeholder="Введите пароль"
-        >
-        </div>
-    <div id="input-auth-block">
-        <input type="password" class="inputAuth" id="repassword"
-        placeholder="Повторите пароль"
-        >
-        </div>
+    <input type="password" class="inputAuth" id="password"
+    placeholder="Введите пароль"
+    >
+    </div>
     <button class="saveBtn"
     onclick="auth()"
-    >Зарегестрироваться</button>
+    >Войти</button>
                 </div>
             </div>
         </div>
@@ -47,11 +42,8 @@
     async function auth(){
         let name = document.getElementById('name').value
         let password = document.getElementById('password').value
-        let repassword = document.getElementById('repassword').value
         console.log(name,password)
-        if(name){
-            if (password == repassword){
-            let auth = await fetch('/registration',{
+        let auth = await fetch('/auth',{
             method : 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -60,17 +52,11 @@
                 nickname : name,
                 password
             })
-            })
-            let res = await auth.json()
-            console.log(res)
-            if(res.susses){
-            window.location.href = '/auth.html'
-        }
-            } else {
-                alert('Пароли не совпадают')
-            }
-        } else {
-            alert('Введите иия')
+        })
+        let res = await auth.json()
+        console.log(res)
+        if(res.authorizated){
+            window.location.href = '/chat.html'
         }
     }
 </script>

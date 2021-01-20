@@ -3,12 +3,14 @@ let socket = io.connect()
 const Messanger = {
     data() {
       return {
-          blackTheme : JSON.parse(localStorage.getItem('blackTheme')) || false,
+          theme : localStorage.getItem('theme') || 'default',
+          activeBlackout : false,
           message : {
               text : '',
               imgSrc : ''
           },
           selected : 'chats',
+          blackoutContent: {},
           selectedItem : {},
           searchValue : "",
           user : {
@@ -31,16 +33,7 @@ const Messanger = {
             avatarUrl : 'https://sun9-76.userapi.com/ZGeclmvivsjkMdnMMTBFcngE1VWtlZMFnokKqQ/GLW2Wv76gZM.jpg?ava=1',
             name : 'Разработчики',
             description : 'Разрабатываем мессeнджер',
-            messages : [
-        {
-            avatarUrl : 'https://cdn0.iconfinder.com/data/icons/set-ui-app-android/32/8-512.png',
-            sender : 'Кто-то',
-            senderId : 1,
-            text : 'Аааааааааааааа',
-            room : 1,
-            imgSrc : ''
-        }
-            ],
+            messages : [],
             },
                 {
                 id : 2,
@@ -113,7 +106,7 @@ const Messanger = {
         this.contacts.visibleContacts = this.contacts.allContacts.filter(item => item.name.match(pattern))
       },
       close(){
-          this.user.editSeen = false
+          this.activeBlackout = false
       },
       uploadFile(){
           let file = document.getElementById('file').files[0]
@@ -128,7 +121,7 @@ const Messanger = {
           })
 
           promise.then(result => {
-              this.message.imgSrc = result.slice(0,result.length-300)
+              this.message.imgSrc = result
           })
           
 
@@ -150,9 +143,32 @@ const Messanger = {
         socket.emit('changeRoom',{
             previousRoom,currentRoom
         })
+      },
+      chooseTheme(theme){
+        return function(){
+            this.theme = theme
+            document.getElementsByTagName('link')[1].href = `css/${theme}Theme.css`
+            localStorage.setItem('theme',theme)
+        }
+      },
+      chooseSetting(setting){
+          switch(setting){
+              case 'theme' : {
+                  this.blackoutContent = {
+                title : 'Выбрать тему',
+                items : [
+                {name : 'Стандартная',action : this.chooseTheme('default')},
+                {name : 'Темная',action : this.chooseTheme('dark')},
+                {name : 'Советская',action : this.chooseTheme('dark')}
+                ]
+                  }
+              }
+          }
+        this.activeBlackout = true
       }
     },
     async mounted(){
+        console.log(this.theme)
         let user = await fetch('/accountData')
         let res = await user.json()
         console.log(res)
@@ -163,11 +179,20 @@ const Messanger = {
         socket.on('addMessage',(message)=>{
             this.selectedItem.messages.push(message)
         })
+        socket.on('getMessages',(data)=>{
+            this.selectedItem.messages = data
+        })
         let messages = document.getElementById("messages")
         messages.scrollTo(0,messages.scrollHeight)
+        document.getElementsByTagName('link')[1].href = `css/${this.theme}Theme.css`
+        document.addEventListener('keydown',(e)=>{
+            switch(e.code){
+                case 'Escape' : {
+                    this.activeBlackout = false
+                }
+            }
+        })
     }
   }
 
-    
-  
  Vue.createApp(Messanger).mount('#app')
