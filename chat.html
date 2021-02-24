@@ -8,9 +8,38 @@
     <link rel="stylesheet" href="css/defaultTheme.css">
 </head>
 <body>
+    
     <div id="app">
-        <div id="blackout" v-if="activeBlackout" @keyup.esc = 'close'>
-            <div id="auth-menu">
+        <div id="blackout" v-if="modal" @keyup.esc="close">
+            <div id="auth-menu" v-if="editMode">
+                <div id="auth-menu-block">
+                    <h1 id="title-auth">Редактировать</h1>
+    <form id="x" enctype="multipart/form-data">
+        <div id="edit-img">
+        <div id="edit-img-block">
+            <img :src="loadedImg || user.avatarUrl" alt="" id="edit-img-preview">
+        </div>
+        <input type="file" id="editImg" name="editImg"
+        @input="uploadFile('editImg','edit-img-preview','default')" >
+    </div>
+    <div id="input-auth-block">
+    <input type="text" class="inputAuth" id="name" name="nickname"
+    placeholder="Введите имя" v-model="edit.nickname"
+    > 
+    </div>
+    <div id="input-auth-block">
+        <input type="text" class="inputAuth" id="status" name="userStatus"
+        placeholder="Введите статус" v-model="edit.status"
+        >
+        </div>
+    </form>
+    
+    <button class="saveBtn"
+    @click="editUser"
+    >Сохранить</button>
+                </div>
+            </div>
+            <div id="auth-menu" v-else>
                 <div id="auth-menu-block">
     <h1 id="title-auth">{{ blackoutContent.title }}</h1>
     <div class="blackoutMenuItem" v-for="item in blackoutContent.items ">
@@ -18,21 +47,21 @@
             <div class="settingName dark" @click="item.action">{{ item.name }}</div>
         </div>
     </div>
-    <button class="saveBtn">Сохранить</button>
+    <button class="saveBtn" @click="close">Сохранить</button>
                 </div>
             </div>
         </div>
         <div id="sidebar">
             <div id="userInfo">
                 <div id="avatarBlock">
-                    <img width="60px" src="https://cdn0.iconfinder.com/data/icons/set-ui-app-android/32/8-512.png" alt="">
+                    <img height="60px" :src="user.avatarUrl" alt="">
                 </div>
                 <div id="userInfoBlock">
-                    <div id="username">{{ user.name }}</div>
+                    <div id="username">{{ user.nickname }}</div>
                     <div id="userStatus">{{ user.status }}</div>
                 </div>
-                <div id="editBlock">
-                    <img width="30px" src="images/edit.png" alt="">
+                <div id="editBlock" @click="chooseSetting('edit')">
+                    <img width="30px" src="images/edit.png">
                 </div>
             </div>
             <div id="menu">
@@ -74,11 +103,18 @@
                     <div class="chatLastMessage">{{ chat.description }}</div>
                 </div>
             </div>
+        <div id="addContact">
+            Добавить контакт 
+            <img src="images/add.png"
+            class="menuItem"
+            @click="newContact"
+            >
+        </div>
         </div>
         <div id="menuItems" v-if="selected == 'settings'">
             <div class="setting" @click="chooseSetting('theme')">
                 <div class="settingName" >Тема :</div>
-                <div class="settingSelected">Default</div>
+                <div class="settingSelected">{{ theme.slice(0,1).toUpperCase() + theme.slice(1) }}</div>
             </div>
             <div class="setting">
                 <div class="settingName">Язык :</div>
@@ -107,14 +143,13 @@
                 >
                     <div class="senderInfo">
                         <div class="senderAvatar">
-                            <img :src="message.avatarUrl">
+                            <img :src="'avatars/' + message.avatarUrl">
                         </div>
                         <div class="senderName">{{ message.sender }}</div>
                         <div class="dispathTime">00:00</div>
                     </div>
                     <div class="messageText">
-                        <div id="text">
-                            {{ message.text }}
+                        <div id="text" v-html="message.text">
                         </div>
                         <img
                         width="400"
@@ -137,14 +172,15 @@
                     </div>
                     <div class="imgBtn">
                         <img src="images/clip.png" height="30px">
-                        <!-- <input type="file" id="file" @input="uploadFile"> -->
+        <input type="file" id="inputFile"
+        @input="uploadFile('inputFile','previewImg','message')">
                     </div>  
                     <div class="imgBtn">
                         <img src="images/telegram.png" @click="sendMessage" height="30px">
                     </div>
                 </div>
-                <div id="previewImg" v-if="message.imgSrc">
-                    <img :src="message.imgSrc">
+        <div id="previewImg-block" v-if="message.imgSrc">
+                    <img :src="message.imgSrc" width="100" id="previewImg">
                 </div>
             </div>
         </div>

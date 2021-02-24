@@ -1,5 +1,6 @@
 const app = require('express')()
 const server = require('http').createServer(app)
+const fs = require('fs')
 const io = require('socket.io')(server)
 const path = require('path')
 const bodyParser = require('body-parser')
@@ -8,6 +9,7 @@ const cookieParser = require('cookie-parser')
 const jwt = require('jsonwebtoken')
 const mysql = require('mysql2')
 const bcrypt = require("bcrypt")
+app.use(multer({dest: 'avatars'}).single('editImg'))
 const pool = mysql.createPool({
     host : "localhost",
     database : "messanger",
@@ -19,13 +21,16 @@ app.use(cookieParser())
 app.use(bodyParser.json())
 
 app.get('/',(req,res)=>{
-    res.sendFile(path.join(__dirname,'registration.html'))
+    res.sendFile(path.join(__dirname,'auth.html'))
 })
 
-app.get('/accountData',(req,res)=>{
+app.get('/accountData',async (req,res)=>{
     let token = req.cookies['token'].split(' ')[1]
     let data = jwt.verify(token,secret)
-    res.send(data)
+    let convs = await pool.execute(`SELECT * FROM conversations
+    WHERE members LIKE '%${data.id}%'`)
+    let user = await pool.execute(`SELECT * FROM users WHERE id = ${data.id}`)
+    res.send([user[0],convs[0]])
 })
 
 app.get(/.css$/,(req,res)=>{
@@ -119,14 +124,31 @@ app.post('/registration',(req,res)=>{
     
 })
 
+app.post('/edit',(req,res)=>{
+    let newname = req.body.editImg
+    if(!(!req.file)){
+    let oldname = req.file.filename
+    newname = req.file.filename + '.' + req.file.originalname.split('.')[1]
+    fs.rename(`avatars/${oldname}`,`avatars/${newname}`,(err)=>{
+        if (err) throw err
+    })
+    }
+    let id = jwt.verify(req.cookies['token'].split(' ')[1],secret).id
+    
+    pool.execute(`UPDATE users
+    SET nickname = '${req.body.nickname}',
+    status = '${req.body.userStatus}',
+    avatarUrl = '${newname}'
+    WHERE id = ${id}`)
+})
+
 io.sockets.on('connect',(socket)=>{
     socket.on('sendMessage',(message)=>{
-pool.execute('INSERT INTO messages(`senderID`,`text`,`img`,`room`,`avatarUrl`) VALUES(?,?,?,?,?)',
+pool.execute('INSERT INTO messages(`senderID`,`text`,`img`,`room`) VALUES(?,?,?,?)',
     [message.senderId,
     message.text,
     message.imgSrc,
-    message.room,
-    message.avatarUrl]
+    message.room]
     )
     io.sockets.to(message.room).emit('addMessage',message)
     })
@@ -135,14 +157,30 @@ pool.execute('INSERT INTO messages(`senderID`,`text`,`img`,`room`,`avatarUrl`) V
             socket.leave(data.previousRoom)
         }
         socket.join(data.currentRoom)
-        pool.execute(`SELECT messages.text, messages.img, messages.avatarUrl,
-        users.nickname AS sender
+        pool.execute(`SELECT messages.text, messages.img,
+        users.nickname AS sender, users.avatarUrl
         FROM messages
         JOIN users
         ON messages.senderID = users.id
         WHERE messages.room = ${data.currentRoom}`)
         .then(([rows])=>{
            socket.emit('getMessages',rows)
+        })
+    })
+    socket.on('addContact',({userId,contactId})=>{
+        pool.execute(`SELECT members FROM conversations WHERE id = ${contactId}`)
+        .then(([rows])=>{
+            let members = JSON.parse(rows[0].members)
+            if(members.indexOf( userId ) != -1){
+                console.log("gg")
+            } else {
+                members.push(userId)
+        pool.execute(`UPDATE conversations SET members = '${JSON.stringify(members)}' WHERE id = 1`)
+        return pool.execute(`SELECT * FROM conversations WHERE id = ${contactId}`)
+            }
+        })
+        .then(([rows])=>{
+            socket.emit('newContact',rows[0])
         })
     })
 })

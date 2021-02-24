@@ -49,7 +49,11 @@ body {
 }
 
 #avatarBlock > img {
+    height: 60px;
     width: 60px;
+    overflow: hidden;
+    border-radius: 100%;
+    margin-left: 10px;
 }
 
 #editBlock {
@@ -121,7 +125,7 @@ body {
     opacity: 1;
 }
 
-input[type="file"] {
+#inputFile {
     position: absolute;
     width: 30px;
     height:30px;
@@ -267,6 +271,7 @@ input[type="file"] {
     flex-direction: column;
     width: 100%;
     height: 75vh;
+    padding-top: 20px;
     overflow-y: scroll;
 }
 
@@ -276,10 +281,14 @@ input[type="file"] {
     min-height: 80px;
 }
 
+.message > img {
+    margin-top: 2px;
+}
+
 .senderInfo {
     display: flex;
     width: 100%;
-    height: 50px;
+    height: 20px;
 }
 
 .senderAvatar {
@@ -291,7 +300,9 @@ input[type="file"] {
 }
 
 .senderAvatar > img {
-    width: 32px;
+    margin-left: 2px;
+    width: 35px;
+    border-radius: 100%;
 }
 
 .senderName {
@@ -314,10 +325,16 @@ input[type="file"] {
 
 .messageText {
     display: inline-block;
+    display: flex;
+    align-items: center;
     width: 100%;
     min-height: 50px;
     padding-left: 30px;
     word-wrap: break-word;
+}
+
+.smile {
+    margin-top: -2px;
 }
 
 #chatFooter {
@@ -353,7 +370,7 @@ input[type="file"] {
     height: 30px;
 }
 
-#previewImg {
+#previewImg-block {
     padding: 5px;
     display: flex;
     align-items: center;
@@ -365,6 +382,10 @@ input[type="file"] {
     height: 80%;
 }
 
+#chatAvatar > img {
+    border-radius: 100%;
+}
+
 #blackout {
     display: flex;
     justify-content: center;
@@ -372,6 +393,7 @@ input[type="file"] {
     position: absolute;
     width: 100%;
     height: 100%;
+    z-index: 1;
     background: rgba(0,0,0,0.7);
 }
 
@@ -461,11 +483,67 @@ input[type="file"] {
     justify-content: flex-start;
 }
 
+.center-block {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 20px;
+    font-size: 14px;
+}
+
+.center-block > * {
+    font-size: 14px;
+}
+
+#addContact {
+    color: white;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+    height: 30px;
+}
+
+#addContact > img {
+    margin-left: 5px;
+    height: 15px;
+    width: 15px;
+}
+
+#edit-img {
+    display: flex;
+    justify-content: center;
+    height: 150px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#edit-img-block {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 200px;
+}
+
+#edit-img-preview {
+    max-height: 150px;
+}
+
+#edit-input {
+    margin: 5px;
+}
+
 @media (max-width : 768px){
     #sidebar {
         display: none;
     }
     #chat {
         width: 100%;
+    }
+    #auth-menu {
+        width:90vw;
+        height: 90vh;
     }
 }
