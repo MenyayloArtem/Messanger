@@ -153,19 +153,36 @@ body {
 #menuItems {
     display: flex;
     flex-direction: column;
-    width: 90%;
-    height: 700px;
+    width: 100%;
+    height: 500px;
     overflow-y: scroll;
 }
 
-.chatItem {
+#menuItemsWrapper {
+    width: 90%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#exit {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    width: 100%;
+    color: white;
+    font-size: 24px;
+}
+
+.item {
     display: flex;
     align-items: center;
     width: 100%;
     height: 85px;
 }
 
-.chatAvatar {
+.itemAvatar {
     display: flex;
     flex: 1;
     height: 100%;
@@ -173,12 +190,14 @@ body {
     align-items: center;
 }
 
-.chatAvatar > img {
+.itemAvatar > img {
     width: 45px;
+    height: 45px;
+    overflow: hidden;
     border-radius: 100%;
 }
 
-.chatInfo {
+.itemInfo {
     color: silver;
     display: flex;
     flex-direction: column;
@@ -189,7 +208,7 @@ body {
     margin-left: 10px;
 }
 
-.chatName {
+.itemName {
     display: flex;
     align-items: center;
     width: 100%;
@@ -198,7 +217,7 @@ body {
     font-weight: 600;
 }
 
-.chatLastMessage {
+.itemSub {
     display: flex;
     align-items: center;
     width: 100%;
@@ -270,15 +289,16 @@ body {
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 75vh;
+    min-height: 75vh;
     padding-top: 20px;
     overflow-y: scroll;
 }
 
 .message {
-    position: relative;
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    min-height: 80px;
+    min-height: auto;
 }
 
 .message > img {
@@ -288,7 +308,7 @@ body {
 .senderInfo {
     display: flex;
     width: 100%;
-    height: 20px;
+    height: 50px;
 }
 
 .senderAvatar {
@@ -302,7 +322,13 @@ body {
 .senderAvatar > img {
     margin-left: 2px;
     width: 35px;
+    height: 35px;
+    overflow: hidden;
     border-radius: 100%;
+}
+
+.selectUser {
+    color: green;
 }
 
 .senderName {
@@ -324,13 +350,39 @@ body {
 }
 
 .messageText {
-    display: inline-block;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: auto;
+    padding-left: 20px;
+    word-wrap: break-word;
+}
+
+#text {
+    width: 100%;
+    min-height: auto;
+    margin-bottom: 4px;
+}
+
+h2 {
+    color: white;
+    margin: 5px;
+}
+
+#addFriend {
+    margin: 2px;
+    width: 70%;
+    height: 36px;
+    padding: 4px;
+    color: white;
+    background: none;
+    font-size: 18px;
+    border: none;
+}
+
+.container {
     display: flex;
     align-items: center;
-    width: 100%;
-    min-height: 50px;
-    padding-left: 30px;
-    word-wrap: break-word;
 }
 
 .smile {
@@ -342,13 +394,13 @@ body {
     flex-direction: column;
     justify-content: flex-end;
     width: 100%;
-    height: 17vh;
+    min-height: 17vh;
 }
 
 #inputWrapper {
     display: flex;
     width: 100%;
-    min-height: 40%;
+    height: 40%;
 }
 
 #inputMessage {
@@ -383,6 +435,9 @@ body {
 }
 
 #chatAvatar > img {
+    width: 35px;
+    height: 35px;
+    overflow: hidden;
     border-radius: 100%;
 }
 
@@ -394,7 +449,7 @@ body {
     width: 100%;
     height: 100%;
     z-index: 1;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.6);
 }
 
 #auth-menu {
@@ -458,8 +513,19 @@ body {
 
 .setting {
     display: flex;
+    align-items: center;
     width: 100%;
     height: 50px;
+}
+
+.settingAvatar {
+    min-width: auto;
+    min-height: auto;
+    margin-right: 10px;
+}
+
+.settingAvatar > img {
+    border-radius: 100%;
 }
 
 .settingName,.settingSelected {
@@ -523,16 +589,45 @@ body {
 #edit-img-block {
     display: flex;
     flex-direction: column;
+    align-items: center;
     height: 100%;
     width: 200px;
+    overflow: hidden;
 }
 
 #edit-img-preview {
-    max-height: 150px;
+    height: 150px;
+    overflow: hidden;
+}
+
+#edit-img-btn {
+    display: none;
+    transition: 0.1;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: inherit;
+    height: 150px;
 }
 
 #edit-input {
     margin: 5px;
+}
+
+#photo-ico {
+    width: 65px;
+}
+
+#edit-img-block:hover #edit-img-btn {
+    display: flex;
+}
+
+#editImg {
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
 }
 
 @media (max-width : 768px){

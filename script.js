@@ -5,16 +5,24 @@ const Messanger = {
       return {
           theme : localStorage.getItem('theme') || 'default',
           loadedImg : null,
-          modal : false,
+
+          modal : {
+              seen : false,
+              option : null
+          },
+
           editMode : false,
           message : {
               text : '',
               imgSrc : ''
           },
+
           selected : 'chats',
           blackoutContent: {},
           selectedItem : {},
           searchValue : "",
+          searchUserValue : "",
+
           user : {
               editSeen : false,
               avatarUrl : "https://cdn0.iconfinder.com/data/icons/set-ui-app-android/32/8-512.png",
@@ -22,9 +30,21 @@ const Messanger = {
               status : "Статус*",
               email : 'example@email.com',
               permission : 'guest',
+              friends : {
+                  allFriends : [],
+                  visible : []
+              },
               id : ''
           },
+
           editedUser : {},
+
+        newConv: {
+            name : '',
+            snbname : '',
+            img : ''
+        },
+
         chats : {
             options : {
                 active : true
@@ -36,30 +56,25 @@ const Messanger = {
 
             ]
         },
-        contacts : {
-            options : {
-                active : false
-            },
-           allContacts : [
-            {
-                avatarUrl : 'https://cm1.narvii.com/7113/9c1dbcec5765ef821fd3cda8e87f1f7173234739_00.jpg',
-                name : 'Пользователь',
-                lastMessage : 'Что-то',
-                id : Math.random()
-            }
-           ],
-           visibleContacts : [
 
-           ]
-      }
+        searchedUser : null
+
       }
     },
+
     computed : {
-        edit(){
-            return this.user
+        canInvite(){
+            let friends = this.user.friends.allFriends.slice(0)
+            let members = this.selectedItem.members.map(item => item.id)
+            friends = friends.filter(item => {
+                return !members.includes(item.id)
+            })
+            return friends
         }
     },
+
     methods : {
+    
       sendMessage(){
             let message = {
                   avatarUrl : this.user.avatarUrl.split('/')[1],
@@ -67,11 +82,11 @@ const Messanger = {
                   senderId : this.user.id,
                   text : this.message.text.trim(),
                   room : this.selectedItem.id,
-                  imgSrc : this.message.imgSrc
+                  img : this.message.imgSrc
               }
 
               console.log(message)
-        if(message.text && message.text.length < 300){
+        if(message.text && message.text.length < 30000){
             this.newMessage = ''
             socket.emit('sendMessage',message)
             let messages = document.getElementById("messages")
@@ -83,24 +98,27 @@ const Messanger = {
         this.message.imgSrc = ""
         document.getElementById('inputFile').value = ''
       },
+
       Save(){
         for(let key in this.editedUser){
             this.user[key] = this.editedUser[key]
             this.user.editSeen = false
         }
       },
+
       Search(){
-        let pattern = new RegExp(`${this.searchValue}`,'g');
+        let pattern = new RegExp(`${this.searchValue}`,'gi');
         this.chats.visibleChats = this.chats.allChats.filter(item => item.name.match(pattern))
-        this.contacts.visibleContacts = this.contacts.allContacts.filter(item => item.name.match(pattern))
+        this.user.friends.visible = this.user.friends.allFriends.filter(item => item.nickname.match(pattern))
       },
+
       close(){
-          this.modal = false
+          this.modal.seen = false
       },
+
       uploadFile(id,to,mode){
           let file = document.getElementById(id).files[0]
           let reader = new FileReader()
-          var result = null
           if(file){
             reader.onloadend = () => {
             var result = reader.result
@@ -115,9 +133,7 @@ const Messanger = {
               result = null
           }
       },
-      test(){
-        localStorage.setItem('blackTheme',!this.blackTheme)
-      },
+
       select(chat){
         if(this.selectedItem){
             const previousRoom = this.selectedItem.id
@@ -128,6 +144,7 @@ const Messanger = {
         })
         }
       },
+
       chooseTheme(theme){
         return function(){
             this.theme = theme
@@ -135,16 +152,28 @@ const Messanger = {
             localStorage.setItem('theme',theme)
         }
       },
+
       newContact(){
-        let userId = this.user.id
-        let contactId = 1
-        socket.emit('addContact',{
-            userId,contactId
+        let form = document.getElementById('n')
+          let fd = new FormData(form)
+          let file = document.getElementById('editImg').files[0]
+        fd.append('convIco',file)
+        let x = fetch('/createContact',{
+            method : 'post',
+            body : fd
+        })
+        this.close()
+      },
+
+      invite(user,contactId){
+          console.log(user)
+        socket.emit('invite',{
+            user,contactId
         })
       },
+
       chooseSetting(setting){
-          switch(setting){
-              case 'theme' : {
+          if(setting == 'other'){
                 this.blackoutContent = {
                 title : 'Выбрать тему',
                 items : [
@@ -153,46 +182,101 @@ const Messanger = {
                 ],
                 images : false
                 }
-              }
-        break
-          case 'edit' : {
-            this.editMode = true
           }
-          }
-          
-        this.modal = true
+        this.modal.option = setting
+        this.modal.seen = true
       },
+
       editUser(){
           let form = document.getElementById('x')
           let formData = new FormData(form)
+
           if(!(formData.get('editImg').size)){
               formData.append('editImg',this.user.avatarUrl.split('/')[1])
           }
-          fetch('edit',{
+
+          fetch('/edit',{
               method : 'post',
               body : formData
           })
-      }
+          this.modal.seen = false
+      },
+
+    async uploadImg(){
+        let file = document.getElementById('inputFile').files[0]
+        let fd = new FormData()
+        fd.append('uploadImg',file)
+        let src = await fetch('/uploadImg',{
+            method : 'post',
+            body : fd
+        })
+        let res = await src.text()
+        console.log(res)
+        this.message.imgSrc = res
     },
+
+    exit(){
+        localStorage.setItem('follow','false')
+        document.location.href = '/'
+    },
+
+    isFriend(id){
+        return this.user.friends.allFriends.findIndex(item => item.id == id) >= 0
+    },
+
+    async searchUser(){
+        let f = await fetch('/find',{
+            body: JSON.stringify({nickname : this.searchUserValue}),
+            headers : {
+                "Content-Type" : "application/json"
+            },
+            method : 'POST'
+        })
+        let res = await f.json()
+        console.log(res)
+        if(res.susses){
+            this.searchedUser = res.user
+        } else {
+            alert('Пользователь не найден')
+        }
+        
+    },
+
+    doFriend(user){
+        socket.emit('doFriend',{id1: this.user.id,id2 : user.id})
+        this.user.friends.allFriends.push(user)
+        this.Search()
+        this.searchUserValue = ''
+        this.searchedUser = null
+    },
+    },
+
+
     async mounted(){
         let user = await fetch('/accountData')
         let res = await user.json()
-        res[0] = res[0][0]
-        this.user = res[0]
-        console.log(res)
+        this.user = res.user
         document.getElementsByTagName('link')[1].href = `css/${this.theme}Theme.css`
         this.user.avatarUrl = 'avatars/' + this.user.avatarUrl
-        if(res[1]){
-            this.chats.allChats = res[1]
+        this.user.friends = {}
+        this.user.friends.allFriends = res.friends
+        if(res.convs.length){
+            this.chats.allChats = res.convs
             this.select(this.chats.allChats[0])
-        } else {
-            this.chats.allChats = []
         }
+
         this.Search()
+
+
         socket.on('addMessage',(msg)=>{
+            console.log(msg)
             let message = msg
             message.text = message.text.replace(/xD/gi,'<img src="images/smile.png">')
             this.selectedItem.messages.push(message)
+            setTimeout(()=>{
+                let messagesEl = document.getElementById("messages")
+                messagesEl.scrollTo(0,messagesEl.scrollHeight)
+            },10)
         })
         socket.on('getMessages',(data)=>{
             let messages = data
@@ -200,19 +284,25 @@ const Messanger = {
                 item.text = item.text.replace(/xD/gi,`<img class="smile" src="images/smile.png">`)
             })
             this.selectedItem.messages = data
+            setTimeout(()=>{
+                let messagesEl = document.getElementById("messages")
+                messagesEl.scrollTo(0,messagesEl.scrollHeight)
+            },100)
         })
+
         socket.on('newContact',(data)=>{
-            
             this.chats.allChats.push(data)
-            console.log(data,this.chats.allChats)
         })
-        let messages = document.getElementById("messages")
-        messages.scrollTo(0,messages.scrollHeight)
+
+        socket.on('invited',(data)=>{
+            console.log(data)
+            this.selectedItem.members.push(data)
+        })
         document.getElementsByTagName('link')[1].href = `css/${this.theme}Theme.css`
         document.addEventListener('keydown',(e)=>{
             switch(e.code){
                 case 'Escape' : {
-                    this.modal = false
+                    this.modal.seen = false
                 }
             }
         })

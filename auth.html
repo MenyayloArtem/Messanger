@@ -24,6 +24,8 @@
     <button class="saveBtn"
     onclick="auth()"
     >Войти</button>
+    <div id="followMe">Запомнить меня 
+        <input onchange="test()" id="followCheckbox" name="follow" type="checkbox"/></div>
     <div class="center-block">Нет аккаунта? <a href="/registration.html">Регистрация</a></div>
                 </div>
             </div>
@@ -38,8 +40,41 @@
         height: 100vh;
         background: #22193f;
     }
+
+    #followMe {
+        width: 100%;
+        height: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+    }
 </style>
 <script>
+    // Получить куки
+    function getCookie(name) {
+    let matches = document.cookie.match(new RegExp(
+    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : undefined;
+    }
+    let token = getCookie('token')
+
+    let follow = localStorage.getItem('follow')
+    if(JSON.parse(follow)){
+        document.getElementsByName('follow')[0].checked = true
+        if(token){
+            document.location.href = '/chat.html'
+        }
+    }
+    function test(){
+        let checked = document.getElementsByName('follow')[0].checked
+        if(checked){
+            localStorage.setItem('follow','true')
+        } else {
+            localStorage.setItem('follow','false')
+        }
+    }
     async function auth(){
         let name = document.getElementById('name').value
         let password = document.getElementById('password').value

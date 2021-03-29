@@ -9,7 +9,8 @@ const cookieParser = require('cookie-parser')
 const jwt = require('jsonwebtoken')
 const mysql = require('mysql2')
 const bcrypt = require("bcrypt")
-app.use(multer({dest: 'avatars'}).single('editImg'))
+const multerAvatars = multer({dest: 'avatars'})
+const multerUploads = multer({dest: 'uploads'})
 const pool = mysql.createPool({
     host : "localhost",
     database : "messanger",
@@ -20,6 +21,33 @@ const secret = 'secret'
 app.use(cookieParser())
 app.use(bodyParser.json())
 
+// Песочница кода
+
+{
+
+
+}
+
+const mimeTypes = {
+    'html' : 'text/html',
+    'css' : 'text/css',
+    'js' : 'text/javascript',
+    'jpg' : 'image/jpg',
+    'png' : 'image/png'
+}
+
+async function getUsersByID(sql1,sql2){
+    let id = await pool.execute(sql1) // Получаем массив с айди пользователей
+    id = JSON.parse(id[0][0][Object.keys(id[0][0])[0]])
+    let users = await Promise.all(id.map(async(item)=>{
+        let res = await pool.execute(sql2,[item]) // Запрос для каждого айди
+        return res[0][0]
+    }))
+    return users
+}
+
+// GET запросы
+
 app.get('/',(req,res)=>{
     res.sendFile(path.join(__dirname,'auth.html'))
 })
@@ -27,32 +55,36 @@ app.get('/',(req,res)=>{
 app.get('/accountData',async (req,res)=>{
     let token = req.cookies['token'].split(' ')[1]
     let data = jwt.verify(token,secret)
-    let convs = await pool.execute(`SELECT * FROM conversations
-    WHERE members LIKE '%${data.id}%'`)
-    let user = await pool.execute(`SELECT * FROM users WHERE id = ${data.id}`)
-    res.send([user[0],convs[0]])
-})
-
-app.get(/.css$/,(req,res)=>{
-    res.setHeader('Content-Type','text/css')
-    res.sendFile(path.join(__dirname,req.url))
-})
-
-app.get(/.html$/,(req,res)=>{
-    res.setHeader('Content-Type','text/html')
-    res.sendFile(path.join(__dirname,req.url))
-})
-
-app.get(/.js$/,(req,res)=>{
-    res.setHeader('Content-Type','text/javascript')
-    res.sendFile(path.join(__dirname,req.url))
+    let convs = await pool.execute(`SELECT * FROM conversations WHERE members REGEXP '(\\\\[|\\,)+(${data.id})(\\\\]|\\,)+'`)
+    let user = await pool.execute(`SELECT avatarUrl, id, permission, nickname, status FROM users WHERE id = ${data.id}`)
+    let friends = await getUsersByID(
+        `SELECT friends FROM users WHERE id = ${data.id}`,
+        `SELECT avatarUrl, id, nickname, status FROM users WHERE id = ?`
+    )
+    convs = convs[0]
+    convs = await Promise.all(convs.map(async (item,i)=>{
+        let conv = item
+        let members = await Promise.all(JSON.parse(conv.members).map(async (item)=>{
+            let res = await pool.execute(`SELECT avatarUrl,nickname,status,id FROM users WHERE id = ${item}`)
+            return res[0][0]
+        }))
+        conv.members = members
+        return conv
+    }))
+    res.json({
+        convs,user : user[0][0], friends
+    })
 })
 
 app.get(/./,(req,res)=>{
+    let type = mimeTypes[(req.url).split('.')[1]]
+    if(type){
+        res.setHeader('Content-Type',`${type}`)
+    }
     res.sendFile(path.join(__dirname,req.url))
 })
 
-
+// POST запросы
 
 app.post('/auth',(req,res)=>{
     try {
@@ -124,7 +156,7 @@ app.post('/registration',(req,res)=>{
     
 })
 
-app.post('/edit',(req,res)=>{
+app.post('/edit',multerAvatars.single('editImg'),(req,res)=>{
     let newname = req.body.editImg
     if(!(!req.file)){
     let oldname = req.file.filename
@@ -142,9 +174,52 @@ app.post('/edit',(req,res)=>{
     WHERE id = ${id}`)
 })
 
+app.post('/uploadImg',multerUploads.single('uploadImg'),(req,res,next)=>{
+    let name = req.file.filename
+        fs.rename(`uploads/${name}`,`uploads/${name}.jpg`,(err)=>{
+        if (err) throw err
+    })
+        res.send(`uploads/${name}.jpg`)
+        next()
+})
+
+app.post('/createContact',multerAvatars.single('convIco'),(req,res)=>{
+    let id = jwt.verify(req.cookies['token'].split(' ')[1],secret).id
+    let filename = req.file.filename
+    if(!(!req.file)){
+    fs.rename(`avatars/${filename}`,`avatars/${filename}.jpg`,(err)=>{
+        if (err) throw err
+    })
+    }
+    pool.execute(`INSERT INTO conversations(name,description,members,avatarUrl)
+    VALUES(?,?,?,?)`,[
+        req.body.convName,req.body.convSubname,
+        JSON.stringify([id]),filename + '.jpg'
+    ])
+})
+
+app.post('/find',async (req,res)=>{
+    const user = await pool.execute(`SELECT nickname,id,status,avatarUrl 
+    FROM users WHERE nickname = '${req.body.nickname}'`)
+    if(user[0].length) {
+    res.json({
+        user : user[0][0],
+        susses : true
+    })
+    } else {
+        res.json({
+            susses : false
+        })
+    }
+    
+})
+
+// Сокеты
+
 io.sockets.on('connect',(socket)=>{
+
     socket.on('sendMessage',(message)=>{
-pool.execute('INSERT INTO messages(`senderID`,`text`,`img`,`room`) VALUES(?,?,?,?)',
+    pool.execute('INSERT INTO messages(`senderID`,`text`,`img`,`room`) VALUES(?,?,?,?)',
     [message.senderId,
     message.text,
     message.imgSrc,
@@ -152,6 +227,8 @@ pool.execute('INSERT INTO messages(`senderID`,`text`,`img`,`room`) VALUES(?,?,?,
     )
     io.sockets.to(message.room).emit('addMessage',message)
     })
+
+
     socket.on('changeRoom',(data)=>{
         if (data.previousRoom){
             socket.leave(data.previousRoom)
@@ -167,12 +244,13 @@ pool.execute('INSERT INTO messages(`senderID`,`text`,`img`,`room`) VALUES(?,?,?,
            socket.emit('getMessages',rows)
         })
     })
+
+
     socket.on('addContact',({userId,contactId})=>{
         pool.execute(`SELECT members FROM conversations WHERE id = ${contactId}`)
         .then(([rows])=>{
             let members = JSON.parse(rows[0].members)
             if(members.indexOf( userId ) != -1){
-                console.log("gg")
             } else {
                 members.push(userId)
         pool.execute(`UPDATE conversations SET members = '${JSON.stringify(members)}' WHERE id = 1`)
@@ -182,6 +260,38 @@ pool.execute('INSERT INTO messages(`senderID`,`text`,`img`,`room`) VALUES(?,?,?,
         .then(([rows])=>{
             socket.emit('newContact',rows[0])
         })
+    })
+
+
+    socket.on('invite',(data)=>{
+        pool.execute(`SELECT members FROM conversations WHERE id = ${data.contactId}`)
+        .then(([rows])=>{
+            let members = JSON.parse(rows[0].members)
+            if(!members.includes(data.user.id)){
+                members.push(data.user.id)
+            }
+            pool.execute(`UPDATE conversations
+            SET members = '${JSON.stringify(members)}'
+            WHERE id = ${data.contactId}`)
+            socket.emit('invited',data.user)
+        })
+    })
+
+    socket.on('doFriend',async ({id1,id2})=>{
+        let src = await pool.execute(`SELECT friends FROM users WHERE id = ${id1}`)
+        var friends = JSON.parse(src[0][0].friends)
+        if(!(friends.includes(id2))){
+            friends.push(id2)
+            friends = JSON.stringify(friends)
+            pool.execute(`UPDATE users SET friends = '${friends}' WHERE id = ${id1}`)
+            let src = await pool.execute(`SELECT friends FROM users WHERE id = ${id2}`)
+            var friends = JSON.parse(src[0][0].friends)
+            if(!(friends.includes(id1))){
+                friends.push(id1)
+            }
+            friends = JSON.stringify(friends)
+            pool.execute(`UPDATE users SET friends = '${friends}' WHERE id = ${id2}`)
+        }
     })
 })
 
