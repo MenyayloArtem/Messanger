@@ -20,25 +20,25 @@
     <form id="x" enctype="multipart/form-data">
         <div id="edit-img">
         <div id="edit-img-block">
-            <img :src="loadedImg || user.avatarUrl" id="edit-img-preview">
+            <img :src="loadedImg || editBuffer.avatarUrl" id="edit-img-preview">
             <div id="edit-img-btn">
                 <div id="blackout">
                     <div class="menuItem">
                     <img src="images/photo.png" id="photo-ico">
-                    <input type="file" id="editImg" name="editImg"
-        @input="uploadFile('editImg','edit-img-preview','default')" >
+                    <input type="file" class="editImg" name="editImg" id="editUserAvatar"
+        @input="uploadFile('editUserAvatar','edit-img-preview','default')" >
                 </div>
                 </div>
             </div>
         </div>
     </div>
     <div id="input-auth-block">
-    <input type="text" class="inputAuth" id="name" name="nickname"
-    placeholder="Введите имя" v-model="edit.nickname"> 
+    <input type="text" class="inputAuth" class="name" name="nickname"
+    placeholder="Введите имя" v-model="editBuffer.nickname"> 
     </div>
     <div id="input-auth-block">
-        <input type="text" class="inputAuth" id="status" name="userStatus"
-        placeholder="Введите статус" v-model="edit.status">
+        <input type="text" class="inputAuth" class="status" name="userStatus"
+        placeholder="Введите статус" v-model="editBuffer.status">
         </div>
     </form>
     <button class="saveBtn"
@@ -60,19 +60,19 @@
                 <div id="blackout">
                     <div class="menuItem">
                     <img src="images/photo.png" id="photo-ico">
-                    <input type="file" id="editImg"
-        @input="uploadFile('editImg','edit-img-preview','default')" >
+                    <input type="file" class="editImg" id='convAvatar'
+        @input="uploadFile('convAvatar','edit-img-preview','default')" >
                 </div>
                 </div>
             </div>
         </div>
     </div>
     <div id="input-auth-block">
-    <input type="text" class="inputAuth" id="name" name="convName"
+    <input type="text" class="inputAuth" class="name" name="convName"
     placeholder="Введите название" v-model="newConv.name"> 
     </div>
     <div id="input-auth-block">
-        <input type="text" class="inputAuth" id="status" name="convSubname"
+        <input type="text" class="inputAuth" class="status" name="convSubname"
         placeholder="Введите подпись" v-model="newConv.subname">
         </div>
     </form>
@@ -175,15 +175,14 @@
         <input type="text"
         placeholder="Search"
         id="search"
-        v-model="searchValue"
-        @input="Search">
+        v-model="searchValue">
         <div id="menuItemsWrapper">
 
             <!-- Чаты -->
 
             <div id="menuItems" v-if="selected == 'chats'">
             <div class="item"
-            v-for="chat in chats.visibleChats"
+            v-for="chat in visible.chats"
             @click="select(chat)">
                 <div class="itemAvatar">
                     <img :src="'avatars/' + chat.avatarUrl">
@@ -206,7 +205,7 @@
 
         <div id="menuItems" v-if="selected == 'friends'">
             <div class="item"
-            v-for="friend in user.friends.visible"
+            v-for="friend in visible.friends"
             >
                 <div class="itemAvatar">
                     <img :src="'avatars/' + friend.avatarUrl">
@@ -270,7 +269,7 @@
         <pre id="exit" @click="exit"><img src="images/exit.png"> Выйти</pre>
         </div>
     </div>
-        <div id="chat" v-if="this.chats.allChats.length">
+        <div id="chat" v-if="this.chats.length">
             <div id="chatHeader">
                 <div id="chatHeaderWrapper">
                     <div id="chatAvatar">
@@ -336,5 +335,5 @@
 </body>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://unpkg.com/vue@next"></script>
-<script src="script.js"></script>
+<script async src="script.js"></script>
 </html>

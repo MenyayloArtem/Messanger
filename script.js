@@ -30,14 +30,8 @@ const Messanger = {
               status : "Статус*",
               email : 'example@email.com',
               permission : 'guest',
-              friends : {
-                  allFriends : [],
-                  visible : []
-              },
               id : ''
           },
-
-          editedUser : {},
 
         newConv: {
             name : '',
@@ -45,17 +39,8 @@ const Messanger = {
             img : ''
         },
 
-        chats : {
-            options : {
-                active : true
-            },
-            allChats : [
-                
-            ],
-            visibleChats : [
-
-            ]
-        },
+        chats : [],
+        friends : [],
 
         searchedUser : null
 
@@ -64,12 +49,26 @@ const Messanger = {
 
     computed : {
         canInvite(){
-            let friends = this.user.friends.allFriends.slice(0)
+            let friends = this.friends.slice(0)
             let members = this.selectedItem.members.map(item => item.id)
             friends = friends.filter(item => {
                 return !members.includes(item.id)
             })
             return friends
+        },
+
+        visible(){
+        let pattern = new RegExp(`${this.searchValue}`,'gi');
+        const chats = this.chats.filter(item => item.name.match(pattern))
+        const friends = this.friends.filter(item => item.nickname.match(pattern))
+        return {chats,friends}
+        },
+        editBuffer(){
+            return {
+                nickname : this.user.nickname,
+                status : this.user.status,
+                avatarUrl : this.user.avatarUrl
+            }
         }
     },
 
@@ -85,7 +84,6 @@ const Messanger = {
                   img : this.message.imgSrc
               }
 
-              console.log(message)
         if(message.text && message.text.length < 30000){
             this.newMessage = ''
             socket.emit('sendMessage',message)
@@ -98,20 +96,6 @@ const Messanger = {
         this.message.imgSrc = ""
         document.getElementById('inputFile').value = ''
       },
-
-      Save(){
-        for(let key in this.editedUser){
-            this.user[key] = this.editedUser[key]
-            this.user.editSeen = false
-        }
-      },
-
-      Search(){
-        let pattern = new RegExp(`${this.searchValue}`,'gi');
-        this.chats.visibleChats = this.chats.allChats.filter(item => item.name.match(pattern))
-        this.user.friends.visible = this.user.friends.allFriends.filter(item => item.nickname.match(pattern))
-      },
-
       close(){
           this.modal.seen = false
       },
@@ -121,12 +105,21 @@ const Messanger = {
           let reader = new FileReader()
           if(file){
             reader.onloadend = () => {
-            var result = reader.result
-            if(mode == 'default'){
-                document.getElementById(to).src = result
-            } else {
-                this.message.imgSrc = result
+            let result = reader.result
+            switch(mode){
+                case 'msg' : {
+                    this.message.imgSrc = result
+                }
+                break;
+                case  'default' : {
+                    document.getElementById(to).src = result
+                }
             }
+            // if(mode == 'default'){
+            //     document.getElementById(to).src = result
+            // } else {
+            //     this.message.imgSrc = result
+            // }
           }
             reader.readAsDataURL(file)
           } else {
@@ -146,7 +139,7 @@ const Messanger = {
       },
 
       chooseTheme(theme){
-        return function(){
+        return () => {
             this.theme = theme
             document.getElementsByTagName('link')[1].href = `css/${theme}Theme.css`
             localStorage.setItem('theme',theme)
@@ -156,7 +149,7 @@ const Messanger = {
       newContact(){
         let form = document.getElementById('n')
           let fd = new FormData(form)
-          let file = document.getElementById('editImg').files[0]
+          let file = document.getElementById('convAvatar').files[0]
         fd.append('convIco',file)
         let x = fetch('/createContact',{
             method : 'post',
@@ -166,7 +159,6 @@ const Messanger = {
       },
 
       invite(user,contactId){
-          console.log(user)
         socket.emit('invite',{
             user,contactId
         })
@@ -200,6 +192,7 @@ const Messanger = {
               body : formData
           })
           this.modal.seen = false
+          Object.assign(this.user,this.editBuffer)
       },
 
     async uploadImg(){
@@ -211,7 +204,6 @@ const Messanger = {
             body : fd
         })
         let res = await src.text()
-        console.log(res)
         this.message.imgSrc = res
     },
 
@@ -221,7 +213,7 @@ const Messanger = {
     },
 
     isFriend(id){
-        return this.user.friends.allFriends.findIndex(item => item.id == id) >= 0
+        return this.friends.findIndex(item => item.id == id) >= 0
     },
 
     async searchUser(){
@@ -233,7 +225,6 @@ const Messanger = {
             method : 'POST'
         })
         let res = await f.json()
-        console.log(res)
         if(res.susses){
             this.searchedUser = res.user
         } else {
@@ -244,8 +235,7 @@ const Messanger = {
 
     doFriend(user){
         socket.emit('doFriend',{id1: this.user.id,id2 : user.id})
-        this.user.friends.allFriends.push(user)
-        this.Search()
+        this.friends.push(user)
         this.searchUserValue = ''
         this.searchedUser = null
     },
@@ -258,18 +248,13 @@ const Messanger = {
         this.user = res.user
         document.getElementsByTagName('link')[1].href = `css/${this.theme}Theme.css`
         this.user.avatarUrl = 'avatars/' + this.user.avatarUrl
-        this.user.friends = {}
-        this.user.friends.allFriends = res.friends
+        this.friends = res.friends
         if(res.convs.length){
-            this.chats.allChats = res.convs
-            this.select(this.chats.allChats[0])
+            this.chats = res.convs
+            this.select(this.chats[0])
         }
 
-        this.Search()
-
-
         socket.on('addMessage',(msg)=>{
-            console.log(msg)
             let message = msg
             message.text = message.text.replace(/xD/gi,'<img src="images/smile.png">')
             this.selectedItem.messages.push(message)
@@ -291,11 +276,10 @@ const Messanger = {
         })
 
         socket.on('newContact',(data)=>{
-            this.chats.allChats.push(data)
+            this.chats.push(data)
         })
 
         socket.on('invited',(data)=>{
-            console.log(data)
             this.selectedItem.members.push(data)
         })
         document.getElementsByTagName('link')[1].href = `css/${this.theme}Theme.css`

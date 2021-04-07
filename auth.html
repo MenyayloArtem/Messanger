@@ -90,7 +90,9 @@
             })
         })
         let res = await auth.json()
-        console.log(res)
+        if(!res.authorizated){
+            alert(res.message)
+        }
         if(res.authorizated){
             window.location.href = '/chat.html'
         }

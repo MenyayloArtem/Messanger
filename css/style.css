@@ -622,7 +622,7 @@ h2 {
     display: flex;
 }
 
-#editImg {
+.editImg {
     position: absolute;
     display: block;
     width: 100%;

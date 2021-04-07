@@ -86,13 +86,12 @@ app.get(/./,(req,res)=>{
 
 // POST запросы
 
-app.post('/auth',(req,res)=>{
-    try {
+app.post('/auth',(req,res,next)=>{
         let {nickname,password} = req.body
         pool.execute("SELECT * FROM users WHERE nickname = ?",
         [nickname]).then(([rows])=>{
             let user = rows[0]
-            if(user.nickname){
+            if(user){
                 let isCorrectPassword = bcrypt.compareSync(password,user.password)
                 if(isCorrectPassword){
                     let token = jwt.sign({
@@ -102,9 +101,9 @@ app.post('/auth',(req,res)=>{
                     },secret)
                     res.cookie('token',"Bearer " + token)
                     res.json({
-                        message : 'Успешная авторизация',
                         authorizated : true
                     })
+                    //next()
                 } else {
                     res.json({
                         message : 'Пароли не совпадают',
@@ -118,17 +117,9 @@ app.post('/auth',(req,res)=>{
                 })
             }
         })
-    } catch (err) {
-        res.json({
-            message : 'Ошибка сервера',
-            authorizated : false
-        })
-        throw err
-    }
-    
 })
 
-app.post('/registration',(req,res)=>{
+app.post('/registration',(req,res,next)=>{
     try {
     let {nickname} = req.body
         pool.execute(`SELECT * FROM users WHERE nickname = '${nickname}'`)
@@ -153,7 +144,7 @@ app.post('/registration',(req,res)=>{
     } catch(err){
         console.log(`Error : ${err.message}`)
     }
-    
+    next()
 })
 
 app.post('/edit',multerAvatars.single('editImg'),(req,res)=>{
@@ -222,7 +213,7 @@ io.sockets.on('connect',(socket)=>{
     pool.execute('INSERT INTO messages(`senderID`,`text`,`img`,`room`) VALUES(?,?,?,?)',
     [message.senderId,
     message.text,
-    message.imgSrc,
+    message.img,
     message.room]
     )
     io.sockets.to(message.room).emit('addMessage',message)
