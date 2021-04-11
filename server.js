@@ -120,7 +120,7 @@ app.post('/auth',(req,res)=>{
         })
 })
 
-app.post('/registration',(req,res,next)=>{
+app.post('/registration',(req,res)=>{
     try {
     let {nickname} = req.body
         pool.execute(`SELECT * FROM users WHERE nickname = '${nickname}'`)
@@ -132,7 +132,7 @@ app.post('/registration',(req,res,next)=>{
                 })
             } else {
                 pool.execute('INSERT INTO users(nickname,password) VALUES (?,?)',
-                [nickname,bcrypt.hashSync(req.body.password,17)
+                [nickname,bcrypt.hashSync(req.body.password,1)
                 ])
                 .then(()=>{
                     res.json({
@@ -145,7 +145,6 @@ app.post('/registration',(req,res,next)=>{
     } catch(err){
         console.log(`Error : ${err.message}`)
     }
-    next()
 })
 
 app.post('/edit',multerAvatars.single('editImg'),(req,res)=>{
@@ -231,7 +230,9 @@ io.sockets.on('connect',(socket)=>{
         FROM messages
         JOIN users
         ON messages.senderID = users.id
-        WHERE messages.room = ${data.currentRoom}`)
+        WHERE messages.room = ${data.currentRoom}
+        ORDER BY messages.id
+        `)
         .then(([rows])=>{
            socket.emit('getMessages',rows)
         })

@@ -87,11 +87,11 @@
 
             <div id="auth-menu" v-show="modal.option == 'inviteToConv'">
                 <div id="auth-menu-block">
-                    <h1 id="title-auth">Участники ( {{ getMembers(selectedItem) || "0"}}/ 5)</h1>
+                    <h1 id="title-auth">Участники</h1>
                     <div class="blackoutMenuItem" v-for="user in selectedItem.members">
                         <div class="setting">
                             <div class="settingAvatar">
-                                <img :src="'avatars/' + user.avatarUrl" width="36">
+                                <img class="smallAvatar" :src="'avatars/' + user.avatarUrl">
                             </div>
                             <div class="settingName dark">{{ user.nickname }}</div>
                         </div>

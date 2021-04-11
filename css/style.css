@@ -518,14 +518,18 @@ h2 {
     height: 50px;
 }
 
-.settingAvatar {
-    min-width: auto;
-    min-height: auto;
-    margin-right: 10px;
+.smallAvatar {
+    max-height: 100%;
 }
 
-.settingAvatar > img {
+.settingAvatar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 36px;
+    height: 36px;
     border-radius: 100%;
+    overflow: hidden;
 }
 
 .settingName,.settingSelected {
