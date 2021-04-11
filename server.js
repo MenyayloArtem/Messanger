@@ -11,12 +11,14 @@ const mysql = require('mysql2')
 const bcrypt = require("bcrypt")
 const multerAvatars = multer({dest: 'avatars'})
 const multerUploads = multer({dest: 'uploads'})
+
 const pool = mysql.createPool({
     host : "localhost",
-    database : "messanger",
+    database : "test",
     user : "mysql",
     password : "mysql"
 }).promise()
+
 const secret = 'secret'
 app.use(cookieParser())
 app.use(bodyParser.json())
@@ -86,7 +88,7 @@ app.get(/./,(req,res)=>{
 
 // POST запросы
 
-app.post('/auth',(req,res,next)=>{
+app.post('/auth',(req,res)=>{
         let {nickname,password} = req.body
         pool.execute("SELECT * FROM users WHERE nickname = ?",
         [nickname]).then(([rows])=>{
@@ -103,7 +105,6 @@ app.post('/auth',(req,res,next)=>{
                     res.json({
                         authorizated : true
                     })
-                    //next()
                 } else {
                     res.json({
                         message : 'Пароли не совпадают',

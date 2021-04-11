@@ -216,6 +216,13 @@ const Messanger = {
         return this.friends.findIndex(item => item.id == id) >= 0
     },
 
+    getMembers(item){
+        if(item.members){
+            return item.members.length
+        }
+        return 0
+    },
+
     async searchUser(){
         let f = await fetch('/find',{
             body: JSON.stringify({nickname : this.searchUserValue}),

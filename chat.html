@@ -87,7 +87,7 @@
 
             <div id="auth-menu" v-show="modal.option == 'inviteToConv'">
                 <div id="auth-menu-block">
-                    <h1 id="title-auth">Участники ({{ selectedItem.members.length}} / 5)</h1>
+                    <h1 id="title-auth">Участники ( {{ getMembers(selectedItem) || "0"}}/ 5)</h1>
                     <div class="blackoutMenuItem" v-for="user in selectedItem.members">
                         <div class="setting">
                             <div class="settingAvatar">
@@ -246,9 +246,9 @@
                     <div class="itemSub">{{ searchedUser.status }}</div>
                 </div>
                 <img src="images/add.png"
+                v-if="!isFriend(searchedUser.id) && searchedUser.id != user.id"
                 @click="doFriend(searchedUser)"
-                v-if="!isFriend(searchedUser.id)"
-                width="18" alt="">
+                width="18">
             </div>
         </div>
 
