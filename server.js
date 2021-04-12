@@ -176,7 +176,8 @@ app.post('/uploadImg',multerUploads.single('uploadImg'),(req,res,next)=>{
 
 app.post('/createContact',multerAvatars.single('convIco'),(req,res)=>{
     let id = jwt.verify(req.cookies['token'].split(' ')[1],secret).id
-    let filename = req.file.filename
+    let filename = Boolean(req.file) ? req.file.filename : 'default';
+    
     if(!(!req.file)){
     fs.rename(`avatars/${filename}`,`avatars/${filename}.jpg`,(err)=>{
         if (err) throw err

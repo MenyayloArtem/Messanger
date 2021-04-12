@@ -156,6 +156,7 @@ const Messanger = {
             body : fd
         })
         this.close()
+        window.location.reload()
       },
 
       invite(user,contactId){
@@ -191,8 +192,7 @@ const Messanger = {
               method : 'post',
               body : formData
           })
-          this.modal.seen = false
-          Object.assign(this.user,this.editBuffer)
+          window.location.reload()
       },
 
     async uploadImg(){
