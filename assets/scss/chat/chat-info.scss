@@ -1,0 +1,132 @@
+.chat-info {
+
+    position: relative;
+    height: auto;
+
+    &__menu {
+        display: flex;
+        margin-top: 12px;
+    }
+
+    &__item {
+        height: 30px;
+        display: flex;
+        align-items: center;
+        background: #1a1b27;
+        padding: 8px;
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 4px;
+        margin-right: 2px;
+    }
+
+    &__body {
+        position: relative;
+        min-height: auto;
+    }
+
+    &__content {
+        position: relative;
+        margin-top: 12px;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    &__main-info {
+        display: flex;
+        align-items: center;
+    }
+
+    &__avatar {
+
+        width: 80px;
+        height: 80px;
+        border-radius: 40px;
+
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+    }
+
+    &__column {
+        margin-left: 18px;
+    }
+
+    &__name {
+        font-size: 20px;
+    }
+
+    &__description {
+        margin-top: 4px;
+        font-size: 16px;
+        color: #333;
+    }
+
+    &__user {
+        position: relative;
+        display: flex;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+
+    &__user-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 25px;
+
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+    }
+
+    &__user-name {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    &__status {
+        font-size: 14px;
+        color: #222;
+    }
+
+    &__add-new {
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        font-size: 18px;
+
+        img {
+            max-width: 18px;
+            margin-left: 4px;
+        }
+    }
+
+    &__main-info {
+        position: relative;
+        width: 100%;
+    }
+
+    &__add {
+        max-width: 18px;
+        position: absolute;
+        top: calc(50% - 9px);
+        right: 0;
+    }
+
+    &__edit {
+        max-width: 24px;
+        position: absolute;
+        top: calc(50% - 12px);
+        right: 0;
+    }
+
+    &__leave {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        color: red;
+        font-weight: 600;
+    }
+}

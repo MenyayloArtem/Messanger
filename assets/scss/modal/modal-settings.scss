@@ -1,0 +1,18 @@
+.modal-settings {
+    margin-top: 18px;
+
+    .setting {
+        padding: 0;
+
+        &__name {
+            font-size: 18px;
+            color: #333;
+        }
+
+        &__value {
+            font-size: 18px;
+            color: #333;
+        }
+    }   
+}
+

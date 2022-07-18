@@ -1,0 +1,95 @@
+@import "./nullstyles.scss";
+
+.new-message {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    &__attachments {
+        width: 100%;
+        display: flex;
+    }
+
+    &__info {
+        margin-left: 8px;
+        font-weight: 600;
+    }
+
+    &__attachment-wrapper {
+        width: 100px;
+        padding: 4px;
+        position: relative;
+    }
+
+    &__attachment {
+        display: block;
+        max-width: 100%;
+    }
+
+    &__close-attachment {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        max-width: 12px;
+        z-index: 2;
+    }
+
+    &__edit {
+        display: flex;
+        align-items: center;
+        font-size: 18px;
+        font-weight: 600;
+        margin-left: 12px;
+
+        img {
+            margin-left: 12px;
+            max-width: 18px;
+        }
+    }
+
+    &__block {
+        height: 50px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+
+    &__input {
+        border: none;
+        flex: 1;
+        height: 100%;
+        padding-left: 8px;
+        font-size: 20px;
+    }
+
+    &__deps {
+        margin-left: 8px;
+        flex: 0 0 25%;
+        display: flex;
+    }
+
+    &__action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        flex: 1;
+
+        img {
+            max-width: 100%;
+        }
+
+        &.clip {
+            position: relative;
+            overflow: hidden;
+
+            input {
+                position: absolute;
+                opacity: 0;
+                width: 100%;
+                height: 100%;
+            }
+        }
+    }
+}

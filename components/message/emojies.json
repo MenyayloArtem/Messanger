@@ -1,0 +1,16 @@
+[
+    {"key" : "xD", "src" : "http://localhost:3001/alkan.png"},
+    {"key" : "xO", "src" : "http://localhost:3001/bomj.png"},
+    {"key" : "&1;", "src" : "http://localhost:3001/emoji1.png"},
+    {"key" : "&2;", "src" : "http://localhost:3001/emoji2.png"},
+    {"key" : "&3;", "src" : "http://localhost:3001/emoji3.png"},
+    {"key" : "&4;", "src" : "http://localhost:3001/emoji4.png"},
+    {"key" : "&5;", "src" : "http://localhost:3001/emoji5.png"},
+    {"key" : "&6;", "src" : "http://localhost:3001/emoji6.png"},
+    {"key" : "&7;", "src" : "http://localhost:3001/emoji7.png"},
+    {"key" : "&8;", "src" : "http://localhost:3001/emoji8.png"},
+    {"key" : "&9;", "src" : "http://localhost:3001/emoji9.png"},
+    {"key" : "&10;", "src" : "http://localhost:3001/emoji10.png"},
+    {"key" : "&11;", "src" : "http://localhost:3001/emoji11.png"},
+    {"key" : "&12;", "src" : "http://localhost:3001/emoji12.png"}
+]
